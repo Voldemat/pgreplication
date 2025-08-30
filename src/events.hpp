@@ -4,16 +4,19 @@
 #include <cstddef>
 #include <cstdint>
 #include <expected>
+#include <optional>
 #include <span>
 #include <string>
+#include <variant>
+#include <vector>
 
 namespace PGREPLICATION_NAMESPACE {
 
-enum class EventType {
-    XLogData = 'w',
-    PrimaryKeepaliveMessage = 'k',
+enum class PrimaryEventType { XLogData = 'w', PrimaryKeepaliveMessage = 'k' };
+
+enum class StandbyEventType {
     StandbyStatusUpdate = 'r',
-    HostStandbyFeedbackMessage = 'h',
+    HotStandbyFeedbackMessage = 'h',
 };
 
 struct XLogData {
@@ -23,9 +26,13 @@ struct XLogData {
     std::span<char> walData;
 
     constexpr static const std::size_t minSize = sizeof(std::int64_t) * 3;
+    using network_buffer = std::span<char>;
+
+    std::size_t getNetworkBufferSize() const;
+    void toNetworkBuffer(const network_buffer &buffer) const;
 
     static std::expected<XLogData, std::string> fromNetworkBuffer(
-        const std::span<char> &buffer);
+        const network_buffer &buffer);
 };
 
 struct PrimaryKeepaliveMessage {
@@ -35,6 +42,9 @@ struct PrimaryKeepaliveMessage {
 
     constexpr static const std::size_t size =
         sizeof(std::int64_t) * 2 + sizeof(bool);
+    using network_buffer = std::span<char, size>;
+
+    void toNetworkBuffer(const network_buffer &buffer) const;
 
     static PrimaryKeepaliveMessage fromNetworkBuffer(
         const std::span<char, size> &buffer);
@@ -51,7 +61,7 @@ struct StandbyStatusUpdate {
         sizeof(std::int64_t) * 4 + sizeof(bool);
     using network_buffer = std::span<char, size>;
 
-    void toNetworkBuffer(const network_buffer &buffer);
+    void toNetworkBuffer(const network_buffer &buffer) const;
 
     static StandbyStatusUpdate fromNetworkBuffer(const network_buffer &buffer);
 };
@@ -65,9 +75,40 @@ struct HotStandbyFeedbackMessage {
 
     constexpr static const std::size_t size =
         sizeof(std::int64_t) + sizeof(std::int32_t) * 4;
+    using network_buffer = std::span<char, size>;
+
+    void toNetworkBuffer(const network_buffer &buffer) const;
 
     static HotStandbyFeedbackMessage fromNetworkBuffer(
-        const std::span<char, size> &buffer);
+        const network_buffer &buffer);
 };
 
+using PrimaryEvent = std::variant<XLogData, PrimaryKeepaliveMessage>;
+using StandbyEvent =
+    std::variant<StandbyStatusUpdate, HotStandbyFeedbackMessage>;
+
+std::expected<PrimaryEvent, std::string> primaryEventFromNetworkBuffer(
+    const std::span<char> &buffer);
+
+std::optional<PrimaryEventType> primaryEventTypeFromChar(const char &c);
+
+std::vector<char> primaryKeepaliveMessageToNetworkBuffer(
+    const PrimaryKeepaliveMessage &message);
+
+std::vector<char> xLogDataToNetworkBuffer(const XLogData &data);
+
+std::vector<char> primaryEventToNetworkBuffer(const PrimaryEvent &event);
+
+std::optional<StandbyEventType> standbyEventTypeFromChar(const char &c);
+
+std::expected<StandbyEvent, std::string> standbyEventFromNetworkBuffer(
+    const std::span<char> &buffer);
+
+std::vector<char> standByStatusUpdateToNetworkBuffer(
+    const StandbyStatusUpdate &message);
+
+std::vector<char> hotStandbyFeedbackMessageToNetworkBuffer(
+    const HotStandbyFeedbackMessage &message);
+
+std::vector<char> standbyEventToNetworkBuffer(const StandbyEvent &event);
 };  // namespace PGREPLICATION_NAMESPACE

@@ -13,4 +13,11 @@ bool boolFromNetwork(const char c);
 void int64ToNetwork(char *pointer, std::int64_t n);
 void int32ToNetwork(char *pointer, std::int32_t n);
 void boolToNetwork(char *pointer, bool value);
+
+template <class... Ts>
+struct overloaded : Ts... {
+    using Ts::operator()...;
+};
+template <class... Ts>
+overloaded(Ts...) -> overloaded<Ts...>;
 };  // namespace PGREPLICATION_NAMESPACE::utils
