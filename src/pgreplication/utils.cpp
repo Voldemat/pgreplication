@@ -21,12 +21,14 @@ std::int32_t int32FromNetwork(const std::span<char> &buffer) {
 
 bool boolFromNetwork(const char c) {
     switch (c) {
-        case '1':
+        case 1:
             return true;
-        case '0':
+        case 0:
             return false;
     }
-    throw std::runtime_error(std::format("Unknown value for bool: {}", c));
+    throw std::runtime_error(
+        std::format("Unknown value for bool: charpoint - {}, char - {}",
+                    (std::int8_t)c, c));
 };
 
 void int64ToNetwork(char *pointer, std::int64_t n) {
@@ -37,7 +39,5 @@ void int32ToNetwork(char *pointer, std::int32_t n) {
     *(std::uint32_t *)pointer = htonl(n);
 };
 
-void boolToNetwork(char* pointer, bool value) {
-    *pointer = value ? '1' : '0';
-};
+void boolToNetwork(char *pointer, bool value) { *pointer = value ? 1 : 0; };
 };  // namespace PGREPLICATION_NAMESPACE::utils

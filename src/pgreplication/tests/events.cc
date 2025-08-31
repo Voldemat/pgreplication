@@ -30,7 +30,7 @@ TEST(StandbyStatusUpdate, TestFromNetworkBufferConstructor) {
     utils::int64ToNetwork(&buffer[8], 2);
     utils::int64ToNetwork(&buffer[16], 3);
     utils::int64ToNetwork(&buffer[24], 4);
-    buffer[32] = '1';
+    buffer[32] = 1;
     const auto &bufferSpan =
         std::span<char, pgreplication::StandbyStatusUpdate::size>(
             buffer, pgreplication::StandbyStatusUpdate::size);
