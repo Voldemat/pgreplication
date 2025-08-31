@@ -2,12 +2,14 @@
 
 #include <arpa/inet.h>
 
+#include <array>
 #include <cassert>
 #include <cstddef>
 #include <cstring>
 #include <expected>
 #include <format>
 #include <optional>
+#include <ranges>
 #include <span>
 #include <string>
 #include <variant>
@@ -140,9 +142,9 @@ std::expected<PrimaryEvent, std::string> primaryEventFromNetworkBuffer(
     };
 };
 
-std::vector<char> primaryKeepaliveMessageToNetworkBuffer(
-    const PrimaryKeepaliveMessage &message) {
-    std::vector<char> buffer(1 + message.size);
+std::array<char, 1 + PrimaryKeepaliveMessage::size>
+primaryKeepaliveMessageToNetworkBuffer(const PrimaryKeepaliveMessage &message) {
+    std::array<char, 1 + PrimaryKeepaliveMessage::size> buffer;
     buffer[0] = static_cast<char>(PrimaryEventType::PrimaryKeepaliveMessage);
     message.toNetworkBuffer(std::span<char, PrimaryKeepaliveMessage::size>(
         buffer.data() + 1, PrimaryKeepaliveMessage::size));
@@ -161,7 +163,8 @@ std::vector<char> primaryEventToNetworkBuffer(const PrimaryEvent &event) {
     return std::visit(
         utils::overloaded{
             [](const PrimaryKeepaliveMessage &message) -> std::vector<char> {
-                return primaryKeepaliveMessageToNetworkBuffer(message);
+                return primaryKeepaliveMessageToNetworkBuffer(message) |
+                       std::ranges::to<std::vector>();
             },
             [](const XLogData &data) -> std::vector<char> {
                 return xLogDataToNetworkBuffer(data);
@@ -212,18 +215,19 @@ std::expected<StandbyEvent, std::string> standbyEventFromNetworkBuffer(
     };
 };
 
-std::vector<char> standByStatusUpdateToNetworkBuffer(
-    const StandbyStatusUpdate &message) {
-    std::vector<char> buffer(1 + StandbyStatusUpdate::size);
+std::array<char, 1 + StandbyStatusUpdate::size>
+standByStatusUpdateToNetworkBuffer(const StandbyStatusUpdate &message) {
+    std::array<char, 1 + StandbyStatusUpdate::size> buffer;
     buffer[0] = static_cast<char>(StandbyEventType::StandbyStatusUpdate);
     message.toNetworkBuffer(std::span<char, StandbyStatusUpdate::size>(
         buffer.data() + 1, StandbyStatusUpdate::size));
     return buffer;
 };
 
-std::vector<char> hotStandbyFeedbackMessageToNetworkBuffer(
+std::array<char, 1 + HotStandbyFeedbackMessage::size>
+hotStandbyFeedbackMessageToNetworkBuffer(
     const HotStandbyFeedbackMessage &message) {
-    std::vector<char> buffer(1 + HotStandbyFeedbackMessage::size);
+    std::array<char, 1 + HotStandbyFeedbackMessage::size> buffer;
     buffer[0] = static_cast<char>(StandbyEventType::HotStandbyFeedbackMessage);
     message.toNetworkBuffer(std::span<char, HotStandbyFeedbackMessage::size>(
         buffer.data() + 1, HotStandbyFeedbackMessage::size));
@@ -234,10 +238,12 @@ std::vector<char> standbyEventToNetworkBuffer(const StandbyEvent &event) {
     return std::visit(
         utils::overloaded{
             [](const StandbyStatusUpdate &message) -> std::vector<char> {
-                return standByStatusUpdateToNetworkBuffer(message);
+                return standByStatusUpdateToNetworkBuffer(message) |
+                       std::ranges::to<std::vector>();
             },
             [](const HotStandbyFeedbackMessage &message) -> std::vector<char> {
-                return hotStandbyFeedbackMessageToNetworkBuffer(message);
+                return hotStandbyFeedbackMessageToNetworkBuffer(message) |
+                       std::ranges::to<std::vector>();
             } },
         event);
 };

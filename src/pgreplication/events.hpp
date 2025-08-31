@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
@@ -92,8 +93,8 @@ std::expected<PrimaryEvent, std::string> primaryEventFromNetworkBuffer(
 
 std::optional<PrimaryEventType> primaryEventTypeFromChar(const char &c);
 
-std::vector<char> primaryKeepaliveMessageToNetworkBuffer(
-    const PrimaryKeepaliveMessage &message);
+std::array<char, 1 + PrimaryKeepaliveMessage::size>
+primaryKeepaliveMessageToNetworkBuffer(const PrimaryKeepaliveMessage &message);
 
 std::vector<char> xLogDataToNetworkBuffer(const XLogData &data);
 
@@ -104,10 +105,11 @@ std::optional<StandbyEventType> standbyEventTypeFromChar(const char &c);
 std::expected<StandbyEvent, std::string> standbyEventFromNetworkBuffer(
     const std::span<char> &buffer);
 
-std::vector<char> standByStatusUpdateToNetworkBuffer(
-    const StandbyStatusUpdate &message);
+std::array<char, 1 + StandbyStatusUpdate::size>
+standByStatusUpdateToNetworkBuffer(const StandbyStatusUpdate &message);
 
-std::vector<char> hotStandbyFeedbackMessageToNetworkBuffer(
+std::array<char, 1 + HotStandbyFeedbackMessage::size>
+hotStandbyFeedbackMessageToNetworkBuffer(
     const HotStandbyFeedbackMessage &message);
 
 std::vector<char> standbyEventToNetworkBuffer(const StandbyEvent &event);
