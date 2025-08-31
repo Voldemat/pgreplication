@@ -1,4 +1,4 @@
-#include "events.hpp"
+#include "../events.hpp"
 
 #include <arpa/inet.h>
 #include <gmock/gmock.h>
@@ -7,7 +7,7 @@
 #include <cstring>
 #include <span>
 
-#include "utils.hpp"
+#include "../utils.hpp"
 
 using namespace PGREPLICATION_NAMESPACE;
 

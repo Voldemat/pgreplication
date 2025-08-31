@@ -1,7 +1,7 @@
 include("${CMAKE_CURRENT_SOURCE_DIR}/vendor/googletest.cmake")
 
 enable_testing()
-file(GLOB_RECURSE PGREPLICATION_TESTS_SOURCES src/tests/*.cc)
+file(GLOB_RECURSE PGREPLICATION_TESTS_SOURCES src/pgreplication/tests/*.cc)
 add_executable(
     main_test
     ${PGREPLICATION_TESTS_SOURCES}
