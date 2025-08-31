@@ -24,7 +24,11 @@ endif()
 file(GLOB_RECURSE PGREPLICATION_SOURCES src/*.cpp src/*.c)
 add_library(pgreplication_object OBJECT ${PGREPLICATION_SOURCES})
 set_property(TARGET pgreplication_object PROPERTY POSITION_INDEPENDENT_CODE 1)
-target_compile_options(pgreplication_object PUBLIC -DPGREPLICATION_NAMESPACE=${PGREPLICATION_NAMESPACE})
+target_compile_options(pgreplication_object PUBLIC -DPGREPLICATION_NAMESPACE=${PGREPLICATION_NAMESPACE} )
+target_include_directories(
+    pgreplication_object
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/
+)
 if (PGREPLICATION_TESTS OR PGREPLICATION_STATIC)
     add_library(pgreplication_static STATIC $<TARGET_OBJECTS:pgreplication_object>)
     target_compile_options(pgreplication_static PUBLIC -DPGREPLICATION_NAMESPACE=${PGREPLICATION_NAMESPACE})
