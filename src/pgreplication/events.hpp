@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <expected>
+#include <format>
 #include <optional>
 #include <span>
 #include <string>
@@ -114,3 +115,86 @@ hotStandbyFeedbackMessageToNetworkBuffer(
 
 std::vector<char> standbyEventToNetworkBuffer(const StandbyEvent &event);
 };  // namespace PGREPLICATION_NAMESPACE
+
+namespace std {
+template <>
+struct std::formatter<PGREPLICATION_NAMESPACE::PrimaryKeepaliveMessage> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const PGREPLICATION_NAMESPACE::PrimaryKeepaliveMessage &record,
+                FormatContext &ctx) const {
+        return std::format_to(ctx.out(),
+                              "PrimaryKeepaliveMessage(serverWalEnd: {}, "
+                              "sentAtUnixTimestamp: {}, "
+                              "replyRequested: {})",
+                              record.serverWalEnd, record.sentAtUnixTimestamp,
+                              record.replyRequested);
+    }
+};
+
+template <>
+struct std::formatter<PGREPLICATION_NAMESPACE::XLogData> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const PGREPLICATION_NAMESPACE::XLogData &record,
+                FormatContext &ctx) const {
+        return std::format_to(ctx.out(),
+                              "XLogData(messageWalStart: {}, serverWalEnd: {},"
+                              "sentAtUnixTimestamp: {}, "
+                              "walData: {})",
+                              record.messageWalStart, record.serverWalEnd,
+                              record.sentAtUnixTimestamp, record.walData);
+    }
+};
+
+template <>
+struct std::formatter<PGREPLICATION_NAMESPACE::StandbyStatusUpdate> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const PGREPLICATION_NAMESPACE::StandbyStatusUpdate &record,
+                FormatContext &ctx) const {
+        return std::format_to(
+            ctx.out(),
+            "StandbyStatusUpdate(writtenWalPosition: {}, flushedWalPosition: "
+            "{}, appliedWalPosition: {}, sentAtUnixTimestamp: {}, "
+            "replyRequested: {})",
+            record.writtenWalPosition, record.flushedWalPosition,
+            record.appliedWalPosition, record.sentAtUnixTimestamp,
+            record.replyRequested);
+    }
+};
+
+template <>
+struct std::formatter<PGREPLICATION_NAMESPACE::HotStandbyFeedbackMessage> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(
+        const PGREPLICATION_NAMESPACE::HotStandbyFeedbackMessage &record,
+        FormatContext &ctx) const {
+        return std::format_to(
+            ctx.out(),
+            "HotStandbyFeedbackMessage(sentAtUnixTimestamp: {}, xmin: {}, "
+            "xminEpoch: {}, lowestReplicationSlotCatalogXmin: {}, "
+            "catalogXminEpoch: {})",
+            record.sentAtUnixTimestamp, record.xmin, record.xminEpoch,
+            record.lowestReplicationSlotCatalogXmin, record.catalogXminEpoch);
+    }
+};
+
+};  // namespace std

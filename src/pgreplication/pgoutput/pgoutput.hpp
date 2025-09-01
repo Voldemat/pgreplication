@@ -1361,4 +1361,5 @@ struct std::formatter<std::vector<std::byte>> {
                                   record.size()));
     }
 };
+
 };  // namespace std
