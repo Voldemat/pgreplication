@@ -1,22 +1,24 @@
 #include "./utils.hpp"
 
 #include <arpa/inet.h>
+#include <sys/_endian.h>
 
 #include <cassert>
 #include <cstdint>
 #include <format>
-#include <span>
 #include <stdexcept>
 
 namespace PGREPLICATION_NAMESPACE::utils {
-std::int64_t int64FromNetwork(const std::span<char> &buffer) {
-    assert(buffer.size() == 8);
-    return ntohll(*(std::int64_t *)&buffer[0]);
+std::int64_t int64FromNetwork(const type_span<std::int64_t> &buffer) {
+    return ntohll(*(std::int64_t *)buffer.data());
 };
 
-std::int32_t int32FromNetwork(const std::span<char> &buffer) {
-    assert(buffer.size() == 4);
-    return ntohl(*(std::int32_t *)&buffer[0]);
+std::int32_t int32FromNetwork(const type_span<std::int32_t> &buffer) {
+    return ntohl(*(std::int32_t *)buffer.data());
+};
+
+std::int16_t int16FromNetwork(const type_span<std::int16_t> &buffer) {
+    return ntohs(*(std::int16_t *)buffer.data());
 };
 
 bool boolFromNetwork(const char c) {
@@ -31,13 +33,15 @@ bool boolFromNetwork(const char c) {
                     (std::int8_t)c, c));
 };
 
-void int64ToNetwork(char *pointer, std::int64_t n) {
-    *(std::uint64_t *)pointer = htonll(n);
+void int64ToNetwork(const type_span<std::int64_t> &buffer, std::int64_t n) {
+    *(std::uint64_t *)buffer.data() = htonll(n);
 };
 
-void int32ToNetwork(char *pointer, std::int32_t n) {
-    *(std::uint32_t *)pointer = htonl(n);
+void int32ToNetwork(const type_span<std::int32_t> &buffer, std::int32_t n) {
+    *(std::uint32_t *)buffer.data() = htonl(n);
 };
 
-void boolToNetwork(char *pointer, bool value) { *pointer = value ? 1 : 0; };
+void boolToNetwork(const type_span<bool> &buffer, bool value) {
+    *buffer.data() = value ? 1 : 0;
+};
 };  // namespace PGREPLICATION_NAMESPACE::utils

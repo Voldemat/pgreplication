@@ -26,10 +26,10 @@ std::expected<XLogData, std::string> XLogData::fromNetworkBuffer(
                         buffer.size()));
     };
     return (XLogData){
-        .messageWalStart = utils::int64FromNetwork(buffer.subspan(0, 8)),
-        .serverWalEnd = utils::int64FromNetwork(buffer.subspan(8, 8)),
-        .sentAtUnixTimestamp = utils::int64FromNetwork(buffer.subspan(16, 8)),
-        .walData = buffer.subspan(24),
+        .messageWalStart = utils::int64FromNetwork(buffer.subspan<0, 8>()),
+        .serverWalEnd = utils::int64FromNetwork(buffer.subspan<8, 8>()),
+        .sentAtUnixTimestamp = utils::int64FromNetwork(buffer.subspan<16, 8>()),
+        .walData = buffer.subspan<24>(),
     };
 };
 
@@ -39,66 +39,70 @@ std::size_t XLogData::getNetworkBufferSize() const {
 
 void XLogData::toNetworkBuffer(const network_buffer &buffer) const {
     assert(buffer.size() == getNetworkBufferSize());
-    utils::int64ToNetwork(&buffer[0], messageWalStart);
-    utils::int64ToNetwork(&buffer[8], serverWalEnd);
-    utils::int64ToNetwork(&buffer[16], sentAtUnixTimestamp);
-    std::memcpy(&buffer[24], walData.data(), walData.size());
+    utils::int64ToNetwork(buffer.subspan<0, 8>(), messageWalStart);
+    utils::int64ToNetwork(buffer.subspan<8, 8>(), serverWalEnd);
+    utils::int64ToNetwork(buffer.subspan<16, 8>(), sentAtUnixTimestamp);
+    std::memcpy(buffer.subspan(24, walData.size()).data(), walData.data(),
+                walData.size());
 };
 
 PrimaryKeepaliveMessage PrimaryKeepaliveMessage::fromNetworkBuffer(
     const std::span<char, size> &buffer) {
     return (PrimaryKeepaliveMessage){
-        .serverWalEnd = utils::int64FromNetwork(buffer.subspan(0, 8)),
-        .sentAtUnixTimestamp = utils::int64FromNetwork(buffer.subspan(8, 8)),
-        .replyRequested = utils::boolFromNetwork(buffer[16])
+        .serverWalEnd = utils::int64FromNetwork(buffer.subspan<0, 8>()),
+        .sentAtUnixTimestamp = utils::int64FromNetwork(buffer.subspan<8, 8>()),
+        .replyRequested =
+            utils::boolFromNetwork(*buffer.subspan<16, 1>().data())
     };
 };
 
 void PrimaryKeepaliveMessage::toNetworkBuffer(
     const network_buffer &buffer) const {
-    utils::int64ToNetwork(&buffer[0], serverWalEnd);
-    utils::int64ToNetwork(&buffer[8], sentAtUnixTimestamp);
-    utils::boolToNetwork(&buffer[16], replyRequested);
+    utils::int64ToNetwork(buffer.subspan<0, 8>(), serverWalEnd);
+    utils::int64ToNetwork(buffer.subspan<8, 8>(), sentAtUnixTimestamp);
+    utils::boolToNetwork(buffer.subspan<16, 1>(), replyRequested);
 };
 
 StandbyStatusUpdate StandbyStatusUpdate::fromNetworkBuffer(
     const std::span<char, size> &buffer) {
     return (StandbyStatusUpdate){
-        .writtenWalPosition = utils::int64FromNetwork(buffer.subspan(0, 8)),
-        .flushedWalPosition = utils::int64FromNetwork(buffer.subspan(8, 8)),
-        .appliedWalPosition = utils::int64FromNetwork(buffer.subspan(16, 8)),
-        .sentAtUnixTimestamp = utils::int64FromNetwork(buffer.subspan(24, 8)),
-        .replyRequested = utils::boolFromNetwork(buffer[32])
+        .writtenWalPosition = utils::int64FromNetwork(buffer.subspan<0, 8>()),
+        .flushedWalPosition = utils::int64FromNetwork(buffer.subspan<8, 8>()),
+        .appliedWalPosition = utils::int64FromNetwork(buffer.subspan<16, 8>()),
+        .sentAtUnixTimestamp = utils::int64FromNetwork(buffer.subspan<24, 8>()),
+        .replyRequested =
+            utils::boolFromNetwork(*buffer.subspan<32, 1>().data())
     };
 };
 
 void StandbyStatusUpdate::toNetworkBuffer(const network_buffer &buffer) const {
-    utils::int64ToNetwork(&buffer[0], writtenWalPosition);
-    utils::int64ToNetwork(&buffer[8], flushedWalPosition);
-    utils::int64ToNetwork(&buffer[16], appliedWalPosition);
-    utils::int64ToNetwork(&buffer[24], sentAtUnixTimestamp);
-    utils::boolToNetwork(&buffer[32], replyRequested);
+    utils::int64ToNetwork(buffer.subspan<0, 8>(), writtenWalPosition);
+    utils::int64ToNetwork(buffer.subspan<8, 8>(), flushedWalPosition);
+    utils::int64ToNetwork(buffer.subspan<16, 8>(), appliedWalPosition);
+    utils::int64ToNetwork(buffer.subspan<24, 8>(), sentAtUnixTimestamp);
+    utils::boolToNetwork(buffer.subspan<32, 1>(), replyRequested);
 };
 
 HotStandbyFeedbackMessage HotStandbyFeedbackMessage::fromNetworkBuffer(
-    const std::span<char, size> &buffer) {
+    const network_buffer &buffer) {
     return (HotStandbyFeedbackMessage){
-        .sentAtUnixTimestamp = utils::int64FromNetwork(buffer.subspan(0, 8)),
-        .xmin = utils::int32FromNetwork(buffer.subspan(8, 4)),
-        .xminEpoch = utils::int32FromNetwork(buffer.subspan(12, 4)),
+        .sentAtUnixTimestamp = utils::int64FromNetwork(buffer.subspan<0, 8>()),
+        .xmin = utils::int32FromNetwork(buffer.subspan<8, 4>()),
+        .xminEpoch = utils::int32FromNetwork(buffer.subspan<12, 4>()),
         .lowestReplicationSlotCatalogXmin =
-            utils::int32FromNetwork(buffer.subspan(16, 4)),
-        .catalogXminEpoch = utils::int32FromNetwork(buffer.subspan(20, 4))
+            utils::int32FromNetwork(buffer.subspan<16, 4>()),
+        .catalogXminEpoch = utils::int32FromNetwork(buffer.subspan<20, 4>())
     };
 };
 
 void HotStandbyFeedbackMessage::toNetworkBuffer(
     const network_buffer &buffer) const {
-    utils::int64ToNetwork(&buffer[0], sentAtUnixTimestamp);
-    utils::int32ToNetwork(&buffer[8], xmin);
-    utils::int32ToNetwork(&buffer[12], xminEpoch);
-    utils::int32ToNetwork(&buffer[16], lowestReplicationSlotCatalogXmin);
-    utils::int32ToNetwork(&buffer[20], catalogXminEpoch);
+    utils::int64ToNetwork(buffer.subspan<0, 8>(), sentAtUnixTimestamp);
+    utils::int32ToNetwork(buffer.subspan<8, 4>(), xmin);
+    utils::int32ToNetwork(buffer.subspan<12, 4>(), xminEpoch);
+    utils::int32ToNetwork(buffer.subspan<16, 4>(),
+                          lowestReplicationSlotCatalogXmin);
+    utils::int32ToNetwork(buffer.subspan<20, 4>(), catalogXminEpoch);
 };
 
 std::optional<PrimaryEventType> primaryEventTypeFromChar(const char &c) {
