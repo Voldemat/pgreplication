@@ -9,6 +9,7 @@
 #include <functional>
 #include <optional>
 #include <span>
+#include <stdexcept>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -531,30 +532,42 @@ parseOldDataOrPrimaryKey(const std::span<char> &buffer) {
 };
 
 template <bool Binary, bool Streaming>
-Update<Binary, Streaming> parseUpdateEvent(const std::span<char> &buffer);
-
-template <bool Binary>
-Update<Binary, true> parseUpdateEvent(const std::span<char> &buffer) {
-    const auto &transactionId = utils::int32FromNetwork(buffer.subspan<0, 4>());
-    const auto &oid = utils::int32FromNetwork(buffer.subspan<4, 4>());
-    const auto &[oldDataOrPrimaryKey, readBytes] =
-        parseOldDataOrPrimaryKey<Binary>(buffer.subspan<8>());
-    return { .transactionId = transactionId,
-             .oid = oid,
-             .oldDataOrPrimaryKey = oldDataOrPrimaryKey,
-             .data =
-                 parseTupleData<Binary>(buffer.subspan(8 + readBytes)).first };
+struct ParseUpdateEvent {
+    static Update<Binary, Streaming> parseUpdateEvent(
+        const std::span<char> &buffer);
 };
 
 template <bool Binary>
-Update<Binary, false> parseUpdateEvent(const std::span<char> &buffer) {
-    const auto &oid = utils::int32FromNetwork(buffer.subspan<0, 4>());
-    const auto &[oldDataOrPrimaryKey, readBytes] =
-        parseOldDataOrPrimaryKey<Binary>(buffer.subspan<4>());
-    return { .oid = oid,
-             .oldDataOrPrimaryKey = oldDataOrPrimaryKey,
-             .data =
-                 parseTupleData<Binary>(buffer.subspan(4 + readBytes)).first };
+struct ParseUpdateEvent<Binary, true> {
+    static Update<Binary, true> parseUpdateEvent(
+        const std::span<char> &buffer) {
+        const auto &transactionId =
+            utils::int32FromNetwork(buffer.subspan<0, 4>());
+        const auto &oid = utils::int32FromNetwork(buffer.subspan<4, 4>());
+        const auto &[oldDataOrPrimaryKey, readBytes] =
+            parseOldDataOrPrimaryKey<Binary>(buffer.subspan<8>());
+        return {
+            .transactionId = transactionId,
+            .oid = oid,
+            .oldDataOrPrimaryKey = oldDataOrPrimaryKey,
+            .data = parseTupleData<Binary>(buffer.subspan(8 + readBytes)).first
+        };
+    };
+};
+
+template <bool Binary>
+struct ParseUpdateEvent<Binary, false> {
+    static Update<Binary, false> parseUpdateEvent(
+        const std::span<char> &buffer) {
+        const auto &oid = utils::int32FromNetwork(buffer.subspan<0, 4>());
+        const auto &[oldDataOrPrimaryKey, readBytes] =
+            parseOldDataOrPrimaryKey<Binary>(buffer.subspan<4>());
+        return {
+            .oid = oid,
+            .oldDataOrPrimaryKey = oldDataOrPrimaryKey,
+            .data = parseTupleData<Binary>(buffer.subspan(4 + readBytes)).first
+        };
+    };
 };
 
 template <bool Binary, bool Streaming>
@@ -640,7 +653,7 @@ parseBaseEvent(const BaseEventType &eventType, const std::span<char> &buffer) {
                 buffer, parseInsertEvent<Binary, IsStreaming>);
         case BaseEventType::UPDATE:
             return parseDynamicSizeEvent<Update<Binary, IsStreaming>>(
-                buffer, parseUpdateEvent<Binary, IsStreaming>);
+                buffer, ParseUpdateEvent<Binary, IsStreaming>::parseUpdateEvent);
         case BaseEventType::DELETE:
             return parseDynamicSizeEvent<Delete<Binary, IsStreaming>>(
                 buffer, parseDeleteEvent<Binary, IsStreaming>);
@@ -729,6 +742,7 @@ parseEventByType(const EventType<Messages, Streaming != StreamingValue::OFF,
                                                         parseStreamPrepare);
         };
     };
+    throw std::runtime_error("No event type was matched");
 };
 
 template <bool Binary, bool Messages, StreamingValue Streaming,
