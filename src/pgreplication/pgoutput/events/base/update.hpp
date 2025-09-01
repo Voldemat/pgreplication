@@ -53,7 +53,7 @@ struct Update<Binary, StreamingEnabledValue::OFF> {
         sizeof(oid) + sizeof(std::int16_t);
     using input_buffer = std::span<char>;
 
-    static Update<Binary, StreamingEnabledValue::OFF> parseUpdateEvent(
+    static Update<Binary, StreamingEnabledValue::OFF> fromBuffer(
         const input_buffer &buffer) {
         const auto &oid = ::PGREPLICATION_NAMESPACE::utils::int32FromNetwork(
             buffer.subspan<0, 4>());
