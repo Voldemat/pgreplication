@@ -509,7 +509,7 @@ struct ParseInsertEvent<Binary, true> {
         return { .transactionId =
                      utils::int32FromNetwork(buffer.subspan<0, 4>()),
                  .oid = utils::int32FromNetwork(buffer.subspan<4, 4>()),
-                 .data = parseTupleData<Binary>(buffer.subspan<8>()).first };
+                 .data = parseTupleData<Binary>(buffer.subspan<9>()).first };
     };
 };
 
@@ -518,7 +518,7 @@ struct ParseInsertEvent<Binary, false> {
     static Insert<Binary, false> parseInsertEvent(
         const std::span<char> &buffer) {
         return { .oid = utils::int32FromNetwork(buffer.subspan<0, 4>()),
-                 .data = parseTupleData<Binary>(buffer.subspan<4>()).first };
+                 .data = parseTupleData<Binary>(buffer.subspan<5>()).first };
     };
 };
 
