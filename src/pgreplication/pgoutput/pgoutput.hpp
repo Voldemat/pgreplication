@@ -916,7 +916,7 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::Relation<false>> {
         const PGREPLICATION_NAMESPACE::pgoutput::Relation<false> &record,
         FormatContext &ctx) const {
         return std::format_to(ctx.out(),
-                              "Relation<Streaming=true>(oid: {}, namespace: "
+                              "Relation<Streaming=false>(oid: {}, namespace: "
                               "{}, name: {}, replicaIdentity: {}, columns: {})",
                               record.oid, record.relationNamespace, record.name,
                               record.replicaIdentity, record.columns);
@@ -1112,11 +1112,10 @@ struct std::formatter<
     auto format(
         const PGREPLICATION_NAMESPACE::pgoutput::Delete<Binary, false> &record,
         FormatContext &ctx) const {
-        return std::format_to(
-            ctx.out(),
-            "Delete<Binary={},Streaming=false>(oid: {}, oldDataOrPrimaryKey: {})",
-            Binary, record.oid,
-            record.oldDataOrPrimaryKey);
+        return std::format_to(ctx.out(),
+                              "Delete<Binary={},Streaming=false>(oid: {}, "
+                              "oldDataOrPrimaryKey: {})",
+                              Binary, record.oid, record.oldDataOrPrimaryKey);
     }
 };
 
@@ -1348,7 +1347,6 @@ struct std::formatter<std::variant<Ts...>> {
         return std::visit(
             [&ctx](auto &&arg) { return std::format_to(ctx.out(), "{}", arg); },
             record);
-        return;
     }
 };
 #endif

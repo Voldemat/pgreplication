@@ -100,7 +100,7 @@ std::vector<RelationColumn> parseRelationColumns(
         const auto &column =
             parseRelationColumn(buffer.subspan(bufferPosition));
         columns.emplace_back(column);
-        bufferPosition = RelationColumn::minBufferSize + column.name.size();
+        bufferPosition += RelationColumn::minBufferSize + column.name.size();
     };
     return columns;
 };
