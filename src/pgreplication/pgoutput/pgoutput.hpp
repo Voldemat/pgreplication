@@ -9,12 +9,14 @@ namespace PGREPLICATION_NAMESPACE::pgoutput {
 template <BinaryValue Binary, MessagesValue Messages, StreamingValue Streaming,
           TwoPhaseValue TwoPhase, OriginValue OriginInfo>
 struct SessionContext {
-    std::string staticOptions =
-        buildPgoutputStaticOptions<Binary, Messages, Streaming, TwoPhase,
-                                   OriginInfo>();
     using Event =
         events::Event<Binary, Messages, Streaming, TwoPhase, OriginInfo>;
     constexpr static auto parseEvent =
         events::parseEvent<Binary, Messages, Streaming, TwoPhase, OriginInfo>;
+
+    constexpr static std::string buildStaticOptions() {
+        return buildPgoutputStaticOptions<Binary, Messages, Streaming, TwoPhase,
+                                          OriginInfo>();
+    };
 };
 };  // namespace PGREPLICATION_NAMESPACE::pgoutput
