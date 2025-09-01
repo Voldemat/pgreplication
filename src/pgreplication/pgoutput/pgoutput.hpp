@@ -803,12 +803,11 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::Begin> {
     template <typename FormatContext>
     auto format(const PGREPLICATION_NAMESPACE::pgoutput::Begin &record,
                 FormatContext &ctx) const {
-        return std::format_to(
-            ctx.out(),
-            "Begin(finalTransactionLsn: {}, commitTimestamp: {}, "
-            "transactionId: {})",
-            record.finalTransactionLsn, record.commitTimestamp,
-            record.transactionId);
+        return std::format_to(ctx.out(),
+                              "Begin(finalTransactionLsn: {}, commitTimestamp: "
+                              "{}, transactionId: {})",
+                              record.finalTransactionLsn,
+                              record.commitTimestamp, record.transactionId);
     }
 };
 
@@ -824,7 +823,7 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::Message<true>> {
                 FormatContext &ctx) const {
         return std::format_to(
             ctx.out(),
-            "Message<Streaming=true>(transactionId: {}, flags: {}, "
+            "Message(transactionId: {}, flags: {}, "
             "lsn: {}, prefix: {}, content: {})",
             record.transactionId, record.flags, record.lsn, record.prefix,
             std::string_view(
@@ -844,9 +843,7 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::Message<false>> {
     auto format(const PGREPLICATION_NAMESPACE::pgoutput::Message<false> &record,
                 FormatContext &ctx) const {
         return std::format_to(
-            ctx.out(),
-            "Message<Streaming=false>(flags: {}, lsn: {}, prefix: {}, content: "
-            "{})",
+            ctx.out(), "Message(flags: {}, lsn: {}, prefix: {}, content: {})",
             record.flags, record.lsn, record.prefix,
             std::string_view(
                 reinterpret_cast<const char *>(record.content.begin().base()),
@@ -895,12 +892,12 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::Relation<true>> {
     template <typename FormatContext>
     auto format(const PGREPLICATION_NAMESPACE::pgoutput::Relation<true> &record,
                 FormatContext &ctx) const {
-        return std::format_to(
-            ctx.out(),
-            "Relation<Streaming=true>(transactionId: {}, oid: {}, namespace: "
-            "{}, name: {}, replicaIdentity: {}, columns: {})",
-            record.transactionId, record.oid, record.relationNamespace,
-            record.name, record.replicaIdentity, record.columns);
+        return std::format_to(ctx.out(),
+                              "Relation(transactionId: {}, oid: {}, namespace: "
+                              "{}, name: {}, replicaIdentity: {}, columns: {})",
+                              record.transactionId, record.oid,
+                              record.relationNamespace, record.name,
+                              record.replicaIdentity, record.columns);
     }
 };
 
@@ -916,8 +913,8 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::Relation<false>> {
         const PGREPLICATION_NAMESPACE::pgoutput::Relation<false> &record,
         FormatContext &ctx) const {
         return std::format_to(ctx.out(),
-                              "Relation<Streaming=false>(oid: {}, namespace: "
-                              "{}, name: {}, replicaIdentity: {}, columns: {})",
+                              "Relation(oid: {}, namespace: {}, name: {}, "
+                              "replicaIdentity: {}, columns: {})",
                               record.oid, record.relationNamespace, record.name,
                               record.replicaIdentity, record.columns);
     }
@@ -950,11 +947,11 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::Type<true>> {
     template <typename FormatContext>
     auto format(const PGREPLICATION_NAMESPACE::pgoutput::Type<true> &record,
                 FormatContext &ctx) const {
-        return std::format_to(ctx.out(),
-                              "Type<Streaming=true>(transactionId: {}, oid: "
-                              "{}, namespace: {}, name: {})",
-                              record.transactionId, record.oid,
-                              record.typeNamespace, record.name);
+        return std::format_to(
+            ctx.out(),
+            "Type(transactionId: {}, oid: {}, namespace: {}, name: {})",
+            record.transactionId, record.oid, record.typeNamespace,
+            record.name);
     }
 };
 
@@ -968,10 +965,9 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::Type<false>> {
     template <typename FormatContext>
     auto format(const PGREPLICATION_NAMESPACE::pgoutput::Type<false> &record,
                 FormatContext &ctx) const {
-        return std::format_to(
-            ctx.out(),
-            "Type<Streaming=false>(oid: {}, namespace: {}, name: {})",
-            record.oid, record.typeNamespace, record.name);
+        return std::format_to(ctx.out(),
+                              "Type(oid: {}, namespace: {}, name: {})",
+                              record.oid, record.typeNamespace, record.name);
     }
 };
 
@@ -1016,11 +1012,9 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::Insert<Binary, true>> {
     auto format(
         const PGREPLICATION_NAMESPACE::pgoutput::Insert<Binary, true> &record,
         FormatContext &ctx) const {
-        return std::format_to(ctx.out(),
-                              "Insert<Binary={},Streaming=true>(transactionId: "
-                              "{}, oid: {}, data: {})",
-                              Binary, record.transactionId, record.oid,
-                              record.data);
+        return std::format_to(
+            ctx.out(), "Insert(transactionId: {}, oid: {}, data: {})", Binary,
+            record.transactionId, record.oid, record.data);
     }
 };
 
@@ -1036,9 +1030,8 @@ struct std::formatter<
     auto format(
         const PGREPLICATION_NAMESPACE::pgoutput::Insert<Binary, false> &record,
         FormatContext &ctx) const {
-        return std::format_to(
-            ctx.out(), "Insert<Binary={},Streaming=false>(oid: {}, data: {})",
-            Binary, record.oid, record.data);
+        return std::format_to(ctx.out(), "Insert(oid: {}, data: {})", Binary,
+                              record.oid, record.data);
     }
 };
 
@@ -1054,8 +1047,8 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::Update<Binary, true>> {
         const PGREPLICATION_NAMESPACE::pgoutput::Update<Binary, true> &record,
         FormatContext &ctx) const {
         return std::format_to(ctx.out(),
-                              "Update<Binary={},Streaming=true>(transactionId: "
-                              "{}, oid: {}, oldDataOrPrimaryKey: {}, data: {})",
+                              "Update(transactionId: {}, oid: {}, "
+                              "oldDataOrPrimaryKey: {}, data: {})",
                               Binary, record.transactionId, record.oid,
                               record.oldDataOrPrimaryKey, record.data);
     }
@@ -1074,7 +1067,7 @@ struct std::formatter<
         const PGREPLICATION_NAMESPACE::pgoutput::Update<Binary, false> &record,
         FormatContext &ctx) const {
         return std::format_to(ctx.out(),
-                              "Update<Binary={},Streaming=false>("
+                              "Update("
                               "oid: {}, oldDataOrPrimaryKey: {}, data: {})",
                               Binary, record.oid, record.oldDataOrPrimaryKey,
                               record.data);
@@ -1093,7 +1086,7 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::Delete<Binary, true>> {
         const PGREPLICATION_NAMESPACE::pgoutput::Delete<Binary, true> &record,
         FormatContext &ctx) const {
         return std::format_to(ctx.out(),
-                              "Delete<Binary={},Streaming=true>(transactionId: "
+                              "Delete(transactionId: "
                               "{}, oid: {}, oldDataOrPrimaryKey: {})",
                               Binary, record.transactionId, record.oid,
                               record.oldDataOrPrimaryKey);
@@ -1113,7 +1106,7 @@ struct std::formatter<
         const PGREPLICATION_NAMESPACE::pgoutput::Delete<Binary, false> &record,
         FormatContext &ctx) const {
         return std::format_to(ctx.out(),
-                              "Delete<Binary={},Streaming=false>(oid: {}, "
+                              "Delete(oid: {}, "
                               "oldDataOrPrimaryKey: {})",
                               Binary, record.oid, record.oldDataOrPrimaryKey);
     }
@@ -1130,7 +1123,7 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::Truncate<true>> {
     auto format(const PGREPLICATION_NAMESPACE::pgoutput::Truncate<true> &record,
                 FormatContext &ctx) const {
         return std::format_to(ctx.out(),
-                              "Truncate<Streaming=true>(transactionId: "
+                              "Truncate(transactionId: "
                               "{}, flags: {}, oids: {})",
                               record.transactionId, record.flags, record.oids);
     }
@@ -1147,8 +1140,7 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::Truncate<false>> {
     auto format(
         const PGREPLICATION_NAMESPACE::pgoutput::Truncate<false> &record,
         FormatContext &ctx) const {
-        return std::format_to(ctx.out(),
-                              "Truncate<Streaming=false>(flags: {}, oids: {})",
+        return std::format_to(ctx.out(), "Truncate(flags: {}, oids: {})",
                               record.flags, record.oids);
     }
 };
@@ -1213,7 +1205,7 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::StreamAbort<true>> {
         const PGREPLICATION_NAMESPACE::pgoutput::StreamAbort<true> &record,
         FormatContext &ctx) const {
         return std::format_to(ctx.out(),
-                              "StreamAbort<IsParallel=true>(transactionId: {}, "
+                              "StreamAbort(transactionId: {}, "
                               "subTransactionId: {}, lsn: {}, timestamp: {})",
                               record.transactionId, record.subTransactionId,
                               record.lsn, record.timestamp);
@@ -1232,7 +1224,7 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::StreamAbort<false>> {
         const PGREPLICATION_NAMESPACE::pgoutput::StreamAbort<false> &record,
         FormatContext &ctx) const {
         return std::format_to(ctx.out(),
-                              "StreamAbort<IsParallel=true>(transactionId: {}, "
+                              "StreamAbort(transactionId: {}, "
                               "subTransactionId: {})",
                               record.transactionId, record.subTransactionId);
     }
