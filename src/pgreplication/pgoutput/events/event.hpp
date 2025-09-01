@@ -166,9 +166,10 @@ std::expected<Event<Binary, Messages, Streaming, TwoPhase, OriginConf>,
               std::string>
 parseEvent(const std::span<char> &buffer) {
     assert(buffer.size() > 0);
-    const auto &eventTypeOptional = parseEventType<
-        Messages, streamingValueToStreamingEnabledValue(Streaming), TwoPhase>(
-        buffer[0]);
+    const auto &eventTypeOptional =
+        parseEventType<Messages,
+                       streamingValueToStreamingEnabledValue(Streaming),
+                       TwoPhase, OriginConf>(buffer[0]);
     if (!eventTypeOptional.has_value()) {
         return std::unexpected(std::format("Unexpected type: '{}'", buffer[0]));
     };
