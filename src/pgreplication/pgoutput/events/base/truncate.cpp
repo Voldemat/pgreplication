@@ -16,7 +16,14 @@ Truncate<StreamingEnabledValue::ON>::fromBuffer(const std::span<char> &buffer) {
     const auto &flags = buffer.subspan<8, 1>().front();
     const auto &oidsBuffer =
         buffer.subspan(9, relationsCount * sizeof(std::int32_t));
-    std::vector<std::int32_t> oids(oidsBuffer.begin(), oidsBuffer.end());
+    std::vector<std::int32_t> oids(relationsCount);
+    for (std::int32_t index = 0; index < relationsCount; index++) {
+        oids[index] = utils::int32FromNetwork(
+            oidsBuffer
+                .subspan(index * sizeof(std::int32_t),
+                         (index + 1) * sizeof(std::int32_t))
+                .subspan<0, 4>());
+    };
     return { .transactionId = transactionId, .flags = flags, .oids = oids };
 };
 
@@ -26,7 +33,14 @@ Truncate<StreamingEnabledValue::OFF> Truncate<
     const auto &flags = buffer.subspan<4, 1>().front();
     const auto &oidsBuffer =
         buffer.subspan(5, relationsCount * sizeof(std::int32_t));
-    std::vector<std::int32_t> oids(oidsBuffer.begin(), oidsBuffer.end());
+    std::vector<std::int32_t> oids(relationsCount);
+    for (std::int32_t index = 0; index < relationsCount; index++) {
+        oids[index] = utils::int32FromNetwork(
+            oidsBuffer
+                .subspan(index * sizeof(std::int32_t),
+                         (index + 1) * sizeof(std::int32_t))
+                .subspan<0, 4>());
+    };
     return { .flags = flags, .oids = oids };
 };
 };  // namespace PGREPLICATION_NAMESPACE::pgoutput::events
