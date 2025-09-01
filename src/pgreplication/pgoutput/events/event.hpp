@@ -36,7 +36,7 @@ struct EventStruct {
         Begin,
         std::conditional_t<Messages == MessagesValue::ON,
                            Message<StreamingEnabled>, void>,
-        Commit, std::conditional_t<OriginConf == OriginValue::ON, Origin, void>,
+        Commit, std::conditional_t<OriginConf == OriginValue::ANY, Origin, void>,
         Relation<StreamingEnabled>, Type<StreamingEnabled>,
         Insert<Binary, StreamingEnabled>, Update<Binary, StreamingEnabled>,
         Delete<Binary, StreamingEnabled>, Truncate<StreamingEnabled>,
@@ -68,7 +68,7 @@ template <MessagesValue Messages, StreamingEnabledValue StreamingEnabled,
 using EventType = ::PGREPLICATION_NAMESPACE::utils::make_variant_t<
     BaseEventType,
     std::conditional_t<Messages == MessagesValue::ON, MessagesEventType, void>,
-    std::conditional_t<OriginConf == OriginValue::ON, OriginEventType, void>,
+    std::conditional_t<OriginConf == OriginValue::ANY, OriginEventType, void>,
     std::conditional_t<StreamingEnabled == StreamingEnabledValue::ON,
                        StreamingEventType, void>,
     std::conditional_t<TwoPhase == TwoPhaseValue::ON, TwoPhaseCommitEventType,
@@ -87,7 +87,7 @@ parseEventType(const char &c) {
         if (static_cast<MessagesEventType>(c) == MessagesEventType::MESSAGE)
             return MessagesEventType::MESSAGE;
     };
-    if constexpr (OriginConf == OriginValue::ON) {
+    if constexpr (OriginConf == OriginValue::ANY) {
         if (static_cast<OriginEventType>(c) == OriginEventType::ORIGIN) {
             return OriginEventType::ORIGIN;
         };
@@ -138,7 +138,7 @@ parseEventByType(
             return Message<StreamingEnabled>::fromBuffer(buffer);
         };
     };
-    if constexpr (OriginConf == OriginValue::ON) {
+    if constexpr (OriginConf == OriginValue::ANY) {
         if (std::holds_alternative<OriginEventType>(eventType)) {
             return Origin::fromBuffer(buffer);
         };
