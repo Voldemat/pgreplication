@@ -124,11 +124,11 @@ parseEventByType(
     if (std::holds_alternative<BaseEventType>(eventType)) {
         const auto &baseEventType = std::get<BaseEventType>(eventType);
         return parseBaseEvent<Binary, StreamingEnabled>(baseEventType, buffer)
-            .transform([](const auto &arg) {
-                return std::visit([](auto &&arg) {
-                    return pgreplication::utils::variant_cast(arg);
+            .transform(
+                [](const auto &event) -> Event<Binary, Messages, Streaming,
+                                               TwoPhase, OriginConf> {
+                    return std::visit([](auto &&arg) { return arg; }, event);
                 });
-            });
     };
     if constexpr (Messages == MessagesValue::ON) {
         if (std::holds_alternative<MessagesEventType>(eventType)) {
@@ -145,10 +145,13 @@ parseEventByType(
             const auto &streamingEventType =
                 std::get<StreamingEventType>(eventType);
             return parseStreamingEvent<Streaming>(streamingEventType, buffer)
-                .transform([](const auto &arg) {
-                    return std::visit([](auto &&arg) {
-                        return pgreplication::utils::variant_cast(arg);
-                    });
+                .transform([](const auto &event) {
+                    return std::visit(
+                        [](auto &&arg) -> Event<Binary, Messages, Streaming,
+                                                TwoPhase, OriginConf> {
+                            return arg;
+                        },
+                        event);
                 });
         };
     };

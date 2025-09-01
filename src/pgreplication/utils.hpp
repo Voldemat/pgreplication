@@ -61,66 +61,6 @@ struct tuple_to_variant<std::tuple<Ts...>> {
 template <typename... Ts>
 using make_variant_t = typename tuple_to_variant<filter_void_t<Ts...>>::type;
 
-template <class... Args>
-struct variant_cast_proxy_lref {
-    std::variant<Args...> &v;
-
-    template <class... ToArgs>
-    constexpr operator std::variant<ToArgs...>() && {
-        return std::visit(
-            [](auto &&arg) -> std::variant<ToArgs...> {
-                return std::forward<decltype(arg)>(arg);
-            },
-            v);
-    }
-};
-
-template <class... Args>
-struct variant_cast_proxy_constlref {
-    const std::variant<Args...> &v;
-
-    template <class... ToArgs>
-    constexpr operator std::variant<ToArgs...>() && {
-        return std::visit(
-            [](auto &&arg) -> std::variant<ToArgs...> {
-                return std::forward<decltype(arg)>(arg);
-            },
-            v);
-    }
-};
-
-template <class... Args>
-struct variant_cast_proxy_rref {
-    std::variant<Args...> &&v;
-
-    template <class... ToArgs>
-    constexpr operator std::variant<ToArgs...>() && {
-        return std::visit(
-            [](auto &&arg) -> std::variant<ToArgs...> {
-                return std::forward<decltype(arg)>(arg);
-            },
-            std::move(v));
-    }
-};
-
-template <class... Args>
-constexpr variant_cast_proxy_lref<Args...> variant_cast(
-    std::variant<Args...> &v) {
-    return { v };
-}
-
-template <class... Args>
-constexpr variant_cast_proxy_constlref<Args...> variant_cast(
-    const std::variant<Args...> &v) {
-    return { v };
-}
-
-template <class... Args>
-constexpr variant_cast_proxy_rref<Args...> variant_cast(
-    std::variant<Args...> &&v) {
-    return { std::move(v) };
-}
-
 };  // namespace PGREPLICATION_NAMESPACE::utils
 
 namespace std {
