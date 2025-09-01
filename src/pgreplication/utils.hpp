@@ -3,11 +3,14 @@
 #include <arpa/inet.h>
 
 #include <cassert>
+#include <cstddef>
 #include <cstdint>
+#include <format>
 #include <span>
 #include <tuple>
 #include <type_traits>
 #include <variant>
+#include <vector>
 
 namespace PGREPLICATION_NAMESPACE::utils {
 template <typename T>
@@ -59,3 +62,42 @@ template <typename... Ts>
 using make_variant_t = typename tuple_to_variant<filter_void_t<Ts...>>::type;
 
 };  // namespace PGREPLICATION_NAMESPACE::utils
+
+namespace std {
+#ifdef PGREPLICATION_ADD_STD_VARIANT_FORMATTER
+template <typename... Ts>
+struct std::formatter<std::variant<Ts...>> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const std::variant<Ts...> &record, FormatContext &ctx) const {
+        return std::visit(
+            [&ctx](auto &&arg) { return std::format_to(ctx.out(), "{}", arg); },
+            record);
+    }
+};
+#endif
+
+template <>
+struct std::formatter<std::vector<std::byte>> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const std::vector<std::byte> &record,
+                FormatContext &ctx) const {
+        return std::format_to(ctx.out(), "{}",
+                              std::span<unsigned char>(
+                                  const_cast<unsigned char *>(
+                                      reinterpret_cast<const unsigned char *>(
+                                          record.begin().base())),
+                                  record.size()));
+    }
+};
+
+};  // namespace std
