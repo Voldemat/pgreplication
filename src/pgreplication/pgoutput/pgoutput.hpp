@@ -1114,9 +1114,8 @@ struct std::formatter<
         FormatContext &ctx) const {
         return std::format_to(
             ctx.out(),
-            "Delete<Binary={},Streaming=false>(transactionId: "
-            "{}, oid: {}, oldDataOrPrimaryKey: {})",
-            Binary, record.transactionId, record.oid,
+            "Delete<Binary={},Streaming=false>(oid: {}, oldDataOrPrimaryKey: {})",
+            Binary, record.oid,
             record.oldDataOrPrimaryKey);
     }
 };
