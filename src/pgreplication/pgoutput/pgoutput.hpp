@@ -508,10 +508,12 @@ template <bool Binary>
 struct ParseInsertEvent<Binary, true> {
     static Insert<Binary, true> parseInsertEvent(
         const std::span<char> &buffer) {
-        return { .transactionId =
-                     utils::int32FromNetwork(buffer.subspan<0, 4>()),
-                 .oid = utils::int32FromNetwork(buffer.subspan<4, 4>()),
-                 .data = parseTupleData<Binary>(buffer.subspan<9>()).first };
+        return {
+            .transactionId = utils::int32FromNetwork(buffer.subspan<0, 4>()),
+            .oid = utils::int32FromNetwork(buffer.subspan<4, 4>()),
+            .data =
+                parseTupleData<Binary>(buffer.subspan<8 + sizeof('N')>()).first
+        };
     };
 };
 
@@ -519,8 +521,11 @@ template <bool Binary>
 struct ParseInsertEvent<Binary, false> {
     static Insert<Binary, false> parseInsertEvent(
         const std::span<char> &buffer) {
-        return { .oid = utils::int32FromNetwork(buffer.subspan<0, 4>()),
-                 .data = parseTupleData<Binary>(buffer.subspan<5>()).first };
+        return {
+            .oid = utils::int32FromNetwork(buffer.subspan<0, 4>()),
+            .data =
+                parseTupleData<Binary>(buffer.subspan<4 + sizeof('N')>()).first
+        };
     };
 };
 
@@ -562,12 +567,12 @@ struct ParseUpdateEvent<Binary, true> {
         const auto &oid = utils::int32FromNetwork(buffer.subspan<4, 4>());
         const auto &[oldDataOrPrimaryKey, readBytes] =
             parseOldDataOrPrimaryKey<Binary>(buffer.subspan<8>());
-        return {
-            .transactionId = transactionId,
-            .oid = oid,
-            .oldDataOrPrimaryKey = oldDataOrPrimaryKey,
-            .data = parseTupleData<Binary>(buffer.subspan(8 + readBytes)).first
-        };
+        return { .transactionId = transactionId,
+                 .oid = oid,
+                 .oldDataOrPrimaryKey = oldDataOrPrimaryKey,
+                 .data = parseTupleData<Binary>(
+                             buffer.subspan(8 + sizeof('N') + readBytes))
+                             .first };
     };
 };
 
