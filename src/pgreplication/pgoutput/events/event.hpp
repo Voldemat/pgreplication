@@ -123,8 +123,7 @@ parseEventByType(
         streamingValueToStreamingEnabledValue(Streaming);
     if (std::holds_alternative<BaseEventType>(eventType)) {
         const auto &baseEventType = std::get<BaseEventType>(eventType);
-        return parseBaseEvent<Binary, Messages, StreamingEnabled, TwoPhase>(
-            baseEventType, buffer);
+        return parseBaseEvent<Binary, StreamingEnabled>(baseEventType, buffer);
     };
     if constexpr (Messages == MessagesValue::ON) {
         if (std::holds_alternative<MessagesEventType>(eventType)) {
