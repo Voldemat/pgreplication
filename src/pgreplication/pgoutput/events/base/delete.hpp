@@ -78,11 +78,10 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Delete<
             PGREPLICATION_NAMESPACE::pgoutput::StreamingEnabledValue::ON>
             &record,
         FormatContext &ctx) const {
-        return std::format_to(ctx.out(),
-                              "Delete(transactionId: "
-                              "{}, oid: {}, oldDataOrPrimaryKey: {})",
-                              Binary, record.transactionId, record.oid,
-                              record.oldDataOrPrimaryKey);
+        return std::format_to(
+            ctx.out(),
+            "Delete(transactionId: {}, oid: {}, oldDataOrPrimaryKey: {})",
+            record.transactionId, record.oid, record.oldDataOrPrimaryKey);
     }
 };
 
@@ -102,9 +101,8 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Delete<
             &record,
         FormatContext &ctx) const {
         return std::format_to(ctx.out(),
-                              "Delete(oid: {}, "
-                              "oldDataOrPrimaryKey: {})",
-                              Binary, record.oid, record.oldDataOrPrimaryKey);
+                              "Delete(oid: {}, oldDataOrPrimaryKey: {})",
+                              record.oid, record.oldDataOrPrimaryKey);
     }
 };
 };  // namespace std

@@ -87,7 +87,7 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Update<
         return std::format_to(ctx.out(),
                               "Update(transactionId: {}, oid: {}, "
                               "oldDataOrPrimaryKey: {}, data: {})",
-                              Binary, record.transactionId, record.oid,
+                              record.transactionId, record.oid,
                               record.oldDataOrPrimaryKey, record.data);
     }
 };
@@ -107,11 +107,9 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Update<
             PGREPLICATION_NAMESPACE::pgoutput::StreamingEnabledValue::OFF>
             &record,
         FormatContext &ctx) const {
-        return std::format_to(ctx.out(),
-                              "Update("
-                              "oid: {}, oldDataOrPrimaryKey: {}, data: {})",
-                              Binary, record.oid, record.oldDataOrPrimaryKey,
-                              record.data);
+        return std::format_to(
+            ctx.out(), "Update(oid: {}, oldDataOrPrimaryKey: {}, data: {})",
+            record.oid, record.oldDataOrPrimaryKey, record.data);
     }
 };
 };  // namespace std

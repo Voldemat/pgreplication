@@ -73,9 +73,9 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Insert<
             PGREPLICATION_NAMESPACE::pgoutput::StreamingEnabledValue::ON>
             &record,
         FormatContext &ctx) const {
-        return std::format_to(
-            ctx.out(), "Insert(transactionId: {}, oid: {}, data: {})", Binary,
-            record.transactionId, record.oid, record.data);
+        return std::format_to(ctx.out(),
+                              "Insert(transactionId: {}, oid: {}, data: {})",
+                              record.transactionId, record.oid, record.data);
     }
 };
 
@@ -94,7 +94,7 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Insert<
             PGREPLICATION_NAMESPACE::pgoutput::StreamingEnabledValue::OFF>
             &record,
         FormatContext &ctx) const {
-        return std::format_to(ctx.out(), "Insert(oid: {}, data: {})", Binary,
+        return std::format_to(ctx.out(), "Insert(oid: {}, data: {})",
                               record.oid, record.data);
     }
 };
