@@ -583,11 +583,11 @@ struct ParseUpdateEvent<Binary, false> {
         const auto &oid = utils::int32FromNetwork(buffer.subspan<0, 4>());
         const auto &[oldDataOrPrimaryKey, readBytes] =
             parseOldDataOrPrimaryKey<Binary>(buffer.subspan<4>());
-        return {
-            .oid = oid,
-            .oldDataOrPrimaryKey = oldDataOrPrimaryKey,
-            .data = parseTupleData<Binary>(buffer.subspan(4 + readBytes)).first
-        };
+        return { .oid = oid,
+                 .oldDataOrPrimaryKey = oldDataOrPrimaryKey,
+                 .data = parseTupleData<Binary>(
+                             buffer.subspan(4 + sizeof('N') + readBytes))
+                             .first };
     };
 };
 
