@@ -124,11 +124,14 @@ parseEventByType(
     if (std::holds_alternative<BaseEventType>(eventType)) {
         const auto &baseEventType = std::get<BaseEventType>(eventType);
         return parseBaseEvent<Binary, StreamingEnabled>(baseEventType, buffer)
-            .transform(
-                [](const auto &event) -> Event<Binary, Messages, Streaming,
-                                               TwoPhase, OriginConf> {
-                    return std::visit([](auto &&arg) { return arg; }, event);
-                });
+            .transform([](const auto &event) {
+                return std::visit(
+                    [](auto &&arg) -> Event<Binary, Messages, Streaming,
+                                            TwoPhase, OriginConf> {
+                        return arg;
+                    },
+                    event);
+            });
     };
     if constexpr (Messages == MessagesValue::ON) {
         if (std::holds_alternative<MessagesEventType>(eventType)) {
