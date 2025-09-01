@@ -497,19 +497,29 @@ std::pair<TupleData<Binary>, unsigned int> parseTupleData(
 };
 
 template <bool Binary, bool Streaming>
-Insert<Binary, Streaming> parseInsertEvent(const std::span<char> &buffer);
-
-template <bool Binary>
-Insert<Binary, true> parseInsertEvent(const std::span<char> &buffer) {
-    return { .transactionId = utils::int32FromNetwork(buffer.subspan<0, 4>()),
-             .oid = utils::int32FromNetwork(buffer.subspan<4, 4>()),
-             .data = parseTupleData<Binary>(buffer.subspan<8>()).first };
+struct ParseInsertEvent {
+    static Insert<Binary, Streaming> parseInsertEvent(
+        const std::span<char> &buffer);
 };
 
 template <bool Binary>
-Insert<Binary, false> parseInsertEvent(const std::span<char> &buffer) {
-    return { .oid = utils::int32FromNetwork(buffer.subspan<0, 4>()),
-             .data = parseTupleData<Binary>(buffer.subspan<4>()).first };
+struct ParseInsertEvent<Binary, true> {
+    static Insert<Binary, true> parseInsertEvent(
+        const std::span<char> &buffer) {
+        return { .transactionId =
+                     utils::int32FromNetwork(buffer.subspan<0, 4>()),
+                 .oid = utils::int32FromNetwork(buffer.subspan<4, 4>()),
+                 .data = parseTupleData<Binary>(buffer.subspan<8>()).first };
+    };
+};
+
+template <bool Binary>
+struct ParseInsertEvent<Binary, false> {
+    static Insert<Binary, false> parseInsertEvent(
+        const std::span<char> &buffer) {
+        return { .oid = utils::int32FromNetwork(buffer.subspan<0, 4>()),
+                 .data = parseTupleData<Binary>(buffer.subspan<4>()).first };
+    };
 };
 
 template <bool Binary>
@@ -521,12 +531,16 @@ parseOldDataOrPrimaryKey(const std::span<char> &buffer) {
         case 'K': {
             const auto &[tupleData, readBytes] =
                 parseTupleData<Binary>(buffer.subspan<1>());
-            return { PrimaryKeyTupleData<Binary>(tupleData), readBytes + 1 };
+            return { OldDataOrPrimaryKeyTupleData<Binary>(
+                         std::in_place_index<1>, tupleData),
+                     readBytes + 1 };
         }
         case 'O':
             const auto &[tupleData, readBytes] =
                 parseTupleData<Binary>(buffer.subspan<1>());
-            return { OldTupleData<Binary>(tupleData), readBytes + 1 };
+            return { OldDataOrPrimaryKeyTupleData<Binary>(
+                         std::in_place_index<0>, tupleData),
+                     readBytes + 1 };
     };
     return { std::nullopt, 0 };
 };
@@ -571,25 +585,37 @@ struct ParseUpdateEvent<Binary, false> {
 };
 
 template <bool Binary, bool Streaming>
-Delete<Binary, Streaming> parseDeleteEvent(const std::span<char> &buffer);
-
-template <bool Binary>
-Delete<Binary, true> parseDeleteEvent(const std::span<char> &buffer) {
-    const auto &transactionId = utils::int32FromNetwork(buffer.subspan<0, 4>());
-    const auto &oid = utils::int32FromNetwork(buffer.subspan<4, 4>());
-    return { .transactionId = transactionId,
-             .oid = oid,
-             .oldDataOrPrimaryKey =
-                 parseOldDataOrPrimaryKey<Binary>(buffer.subspan<8>()).first };
+struct ParseDeleteEvent {
+    static Delete<Binary, Streaming> parseDeleteEvent(
+        const std::span<char> &buffer);
 };
 
 template <bool Binary>
-Delete<Binary, false> parseDeleteEvent(const std::span<char> &buffer) {
-    const auto &oid = utils::int32FromNetwork(buffer.subspan<0, 4>());
-    return {
-        .oid = oid,
-        .oldDataOrPrimaryKey =
-            parseOldDataOrPrimaryKey<Binary>(buffer.subspan<4>()).first,
+struct ParseDeleteEvent<Binary, true> {
+    static Delete<Binary, true> parseDeleteEvent(
+        const std::span<char> &buffer) {
+        const auto &transactionId =
+            utils::int32FromNetwork(buffer.subspan<0, 4>());
+        const auto &oid = utils::int32FromNetwork(buffer.subspan<4, 4>());
+        return {
+            .transactionId = transactionId,
+            .oid = oid,
+            .oldDataOrPrimaryKey =
+                parseOldDataOrPrimaryKey<Binary>(buffer.subspan<8>()).first
+        };
+    };
+};
+
+template <bool Binary>
+struct ParseDeleteEvent<Binary, false> {
+    static Delete<Binary, false> parseDeleteEvent(
+        const std::span<char> &buffer) {
+        const auto &oid = utils::int32FromNetwork(buffer.subspan<0, 4>());
+        return {
+            .oid = oid,
+            .oldDataOrPrimaryKey =
+                parseOldDataOrPrimaryKey<Binary>(buffer.subspan<4>()).first,
+        };
     };
 };
 
@@ -650,13 +676,16 @@ parseBaseEvent(const BaseEventType &eventType, const std::span<char> &buffer) {
                 buffer, parseTypeEvent<IsStreaming>);
         case BaseEventType::INSERT:
             return parseDynamicSizeEvent<Insert<Binary, IsStreaming>>(
-                buffer, parseInsertEvent<Binary, IsStreaming>);
+                buffer,
+                ParseInsertEvent<Binary, IsStreaming>::parseInsertEvent);
         case BaseEventType::UPDATE:
             return parseDynamicSizeEvent<Update<Binary, IsStreaming>>(
-                buffer, ParseUpdateEvent<Binary, IsStreaming>::parseUpdateEvent);
+                buffer,
+                ParseUpdateEvent<Binary, IsStreaming>::parseUpdateEvent);
         case BaseEventType::DELETE:
             return parseDynamicSizeEvent<Delete<Binary, IsStreaming>>(
-                buffer, parseDeleteEvent<Binary, IsStreaming>);
+                buffer,
+                ParseDeleteEvent<Binary, IsStreaming>::parseDeleteEvent);
         case BaseEventType::TRUNCATE:
             return parseDynamicSizeEvent<Truncate<IsStreaming>>(
                 buffer, parseTruncateEvent<IsStreaming>);
