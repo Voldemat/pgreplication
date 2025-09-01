@@ -303,7 +303,7 @@ RollbackPrepared parseRollbackPrepared(const std::span<char> &buffer) {
     return { .flags = buffer.subspan<0, 1>().front(),
              .lsn = utils::int64FromNetwork(buffer.subspan<1, 8>()),
              .endLsn = utils::int64FromNetwork(buffer.subspan<9, 8>()),
-             .timestamp = utils::int64FromNetwork(buffer.subspan<17, 8>()),
+             .prepareTimestamp = utils::int64FromNetwork(buffer.subspan<17, 8>()),
              .rollbackTimestamp =
                  utils::int64FromNetwork(buffer.subspan<25, 8>()),
              .transactionId = utils::int32FromNetwork(buffer.subspan<33, 4>()),

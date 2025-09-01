@@ -21,17 +21,21 @@ if (NOT DEFINED PGREPLICATION_NAMESPACE)
     set(PGREPLICATION_NAMESPACE pgreplication)
 endif()
 
+if (NOT DEFINED PGREPLICATION_ADD_STD_VARIANT_FORMATTER)
+    set(PGREPLICATION_ADD_STD_VARIANT_FORMATTER ON)
+endif()
+
 file(GLOB_RECURSE PGREPLICATION_SOURCES src/*.cpp src/*.c)
 add_library(pgreplication_object OBJECT ${PGREPLICATION_SOURCES})
 set_property(TARGET pgreplication_object PROPERTY POSITION_INDEPENDENT_CODE 1)
-target_compile_options(pgreplication_object PUBLIC -DPGREPLICATION_NAMESPACE=${PGREPLICATION_NAMESPACE} )
+target_compile_options(pgreplication_object PUBLIC -DPGREPLICATION_NAMESPACE=${PGREPLICATION_NAMESPACE} -DPGREPLICATION_ADD_STD_VARIANT_FORMATTER=${PGREPLICATION_ADD_STD_VARIANT_FORMATTER})
 target_include_directories(
     pgreplication_object
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/
 )
 if (PGREPLICATION_TESTS OR PGREPLICATION_STATIC)
     add_library(pgreplication_static STATIC $<TARGET_OBJECTS:pgreplication_object>)
-    target_compile_options(pgreplication_static PUBLIC -DPGREPLICATION_NAMESPACE=${PGREPLICATION_NAMESPACE})
+    target_compile_options(pgreplication_static PUBLIC -DPGREPLICATION_NAMESPACE=${PGREPLICATION_NAMESPACE} -DPGREPLICATION_ADD_STD_VARIANT_FORMATTER=${PGREPLICATION_ADD_STD_VARIANT_FORMATTER})
     target_include_directories(
         pgreplication_static
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/
@@ -39,7 +43,7 @@ if (PGREPLICATION_TESTS OR PGREPLICATION_STATIC)
 endif()
 if (PGREPLICATION_SHARED)
     add_library(pgreplication_shared SHARED $<TARGET_OBJECTS:pgreplication_object>)
-    target_compile_options(pgreplication_shared PUBLIC -DPGREPLICATION_NAMESPACE=${PGREPLICATION_NAMESPACE})
+    target_compile_options(pgreplication_shared PUBLIC -DPGREPLICATION_NAMESPACE=${PGREPLICATION_NAMESPACE} -DPGREPLICATION_ADD_STD_VARIANT_FORMATTER=${PGREPLICATION_ADD_STD_VARIANT_FORMATTER})
     target_include_directories(
         pgreplication_shared
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/

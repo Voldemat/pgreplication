@@ -11,6 +11,7 @@
 #include <span>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <utility>
 #include <variant>
@@ -323,14 +324,15 @@ struct RollbackPrepared {
     std::int8_t flags;
     std::int64_t lsn;
     std::int64_t endLsn;
-    std::int64_t timestamp;
+    std::int64_t prepareTimestamp;
     std::int64_t rollbackTimestamp;
     std::int32_t transactionId;
     std::string gid;
 
     constexpr static std::size_t minBufferSize =
-        sizeof(flags) + sizeof(lsn) + sizeof(endLsn) + sizeof(timestamp) +
-        sizeof(rollbackTimestamp) + sizeof(transactionId) + 1;
+        sizeof(flags) + sizeof(lsn) + sizeof(endLsn) +
+        sizeof(prepareTimestamp) + sizeof(rollbackTimestamp) +
+        sizeof(transactionId) + 1;
 };
 
 struct StreamPrepare {
@@ -789,3 +791,566 @@ parseEvent(const std::span<char> &buffer) {
         eventType, buffer.subspan(1));
 };
 };  // namespace PGREPLICATION_NAMESPACE::pgoutput
+
+namespace std {
+template <>
+struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::Begin> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const PGREPLICATION_NAMESPACE::pgoutput::Begin &record,
+                FormatContext &ctx) const {
+        return std::format_to(
+            ctx.out(),
+            "Begin(finalTransactionLsn: {}, commitTimestamp: {}, "
+            "transactionId: {})",
+            record.finalTransactionLsn, record.commitTimestamp,
+            record.transactionId);
+    }
+};
+
+template <>
+struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::Message<true>> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const PGREPLICATION_NAMESPACE::pgoutput::Message<true> &record,
+                FormatContext &ctx) const {
+        return std::format_to(
+            ctx.out(),
+            "Message<Streaming=true>(transactionId: {}, flags: {}, "
+            "lsn: {}, prefix: {}, content: {})",
+            record.transactionId, record.flags, record.lsn, record.prefix,
+            std::string_view(
+                reinterpret_cast<const char *>(record.content.begin().base()),
+                reinterpret_cast<const char *>(record.content.end().base())));
+    }
+};
+
+template <>
+struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::Message<false>> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const PGREPLICATION_NAMESPACE::pgoutput::Message<false> &record,
+                FormatContext &ctx) const {
+        return std::format_to(
+            ctx.out(),
+            "Message<Streaming=false>(flags: {}, lsn: {}, prefix: {}, content: "
+            "{})",
+            record.flags, record.lsn, record.prefix,
+            std::string_view(
+                reinterpret_cast<const char *>(record.content.begin().base()),
+                reinterpret_cast<const char *>(record.content.end().base())));
+    }
+};
+
+template <>
+struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::Commit> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const PGREPLICATION_NAMESPACE::pgoutput::Commit &record,
+                FormatContext &ctx) const {
+        return std::format_to(
+            ctx.out(), "Commit(flags: {}, lsn: {}, endLsn: {}, timestamp: {})",
+            record.flags, record.lsn, record.endLsn, record.timestamp);
+    }
+};
+
+template <>
+struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::Origin> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const PGREPLICATION_NAMESPACE::pgoutput::Origin &record,
+                FormatContext &ctx) const {
+        return std::format_to(ctx.out(), "Origin(commitLsn: {}, origin: {})",
+                              record.commitLsn, record.origin);
+    }
+};
+
+template <>
+struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::Relation<true>> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const PGREPLICATION_NAMESPACE::pgoutput::Relation<true> &record,
+                FormatContext &ctx) const {
+        return std::format_to(
+            ctx.out(),
+            "Relation<Streaming=true>(transactionId: {}, oid: {}, namespace: "
+            "{}, name: {}, replicaIdentity: {}, columns: {})",
+            record.transactionId, record.oid, record.relationNamespace,
+            record.name, record.replicaIdentity, record.columns);
+    }
+};
+
+template <>
+struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::Relation<false>> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(
+        const PGREPLICATION_NAMESPACE::pgoutput::Relation<false> &record,
+        FormatContext &ctx) const {
+        return std::format_to(ctx.out(),
+                              "Relation<Streaming=true>(oid: {}, namespace: "
+                              "{}, name: {}, replicaIdentity: {}, columns: {})",
+                              record.oid, record.relationNamespace, record.name,
+                              record.replicaIdentity, record.columns);
+    }
+};
+
+template <>
+struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::RelationColumn> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const PGREPLICATION_NAMESPACE::pgoutput::RelationColumn &record,
+                FormatContext &ctx) const {
+        return std::format_to(
+            ctx.out(),
+            "RelationColumn(flags: {}, name: {}, oid: {}, typeModifier: {})",
+            record.flags, record.name, record.oid, record.typeModifier);
+    }
+};
+
+template <>
+struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::Type<true>> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const PGREPLICATION_NAMESPACE::pgoutput::Type<true> &record,
+                FormatContext &ctx) const {
+        return std::format_to(ctx.out(),
+                              "Type<Streaming=true>(transactionId: {}, oid: "
+                              "{}, namespace: {}, name: {})",
+                              record.transactionId, record.oid,
+                              record.typeNamespace, record.name);
+    }
+};
+
+template <>
+struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::Type<false>> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const PGREPLICATION_NAMESPACE::pgoutput::Type<false> &record,
+                FormatContext &ctx) const {
+        return std::format_to(
+            ctx.out(),
+            "Type<Streaming=false>(oid: {}, namespace: {}, name: {})",
+            record.oid, record.typeNamespace, record.name);
+    }
+};
+
+template <>
+struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::PGNull> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const PGREPLICATION_NAMESPACE::pgoutput::PGNull &record,
+                FormatContext &ctx) const {
+        return std::format_to(ctx.out(), "NULL");
+    }
+};
+
+template <>
+struct std::formatter<
+    PGREPLICATION_NAMESPACE::pgoutput::PGUnchangedToastedValue> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const PGREPLICATION_NAMESPACE::pgoutput::PGUnchangedToastedValue
+                    &record,
+                FormatContext &ctx) const {
+        return std::format_to(ctx.out(), "PGUnchangedToastedValue");
+    }
+};
+
+template <bool Binary>
+struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::Insert<Binary, true>> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(
+        const PGREPLICATION_NAMESPACE::pgoutput::Insert<Binary, true> &record,
+        FormatContext &ctx) const {
+        return std::format_to(ctx.out(),
+                              "Insert<Binary={},Streaming=true>(transactionId: "
+                              "{}, oid: {}, data: {})",
+                              Binary, record.transactionId, record.oid,
+                              record.data);
+    }
+};
+
+template <bool Binary>
+struct std::formatter<
+    PGREPLICATION_NAMESPACE::pgoutput::Insert<Binary, false>> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(
+        const PGREPLICATION_NAMESPACE::pgoutput::Insert<Binary, false> &record,
+        FormatContext &ctx) const {
+        return std::format_to(
+            ctx.out(), "Insert<Binary={},Streaming=false>(oid: {}, data: {})",
+            Binary, record.oid, record.data);
+    }
+};
+
+template <bool Binary>
+struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::Update<Binary, true>> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(
+        const PGREPLICATION_NAMESPACE::pgoutput::Update<Binary, true> &record,
+        FormatContext &ctx) const {
+        return std::format_to(ctx.out(),
+                              "Update<Binary={},Streaming=true>(transactionId: "
+                              "{}, oid: {}, oldDataOrPrimaryKey: {}, data: {})",
+                              Binary, record.transactionId, record.oid,
+                              record.oldDataOrPrimaryKey, record.data);
+    }
+};
+
+template <bool Binary>
+struct std::formatter<
+    PGREPLICATION_NAMESPACE::pgoutput::Update<Binary, false>> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(
+        const PGREPLICATION_NAMESPACE::pgoutput::Update<Binary, false> &record,
+        FormatContext &ctx) const {
+        return std::format_to(ctx.out(),
+                              "Update<Binary={},Streaming=false>("
+                              "oid: {}, oldDataOrPrimaryKey: {}, data: {})",
+                              Binary, record.oid, record.oldDataOrPrimaryKey,
+                              record.data);
+    }
+};
+
+template <bool Binary>
+struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::Delete<Binary, true>> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(
+        const PGREPLICATION_NAMESPACE::pgoutput::Delete<Binary, true> &record,
+        FormatContext &ctx) const {
+        return std::format_to(ctx.out(),
+                              "Delete<Binary={},Streaming=true>(transactionId: "
+                              "{}, oid: {}, oldDataOrPrimaryKey: {})",
+                              Binary, record.transactionId, record.oid,
+                              record.oldDataOrPrimaryKey);
+    }
+};
+
+template <bool Binary>
+struct std::formatter<
+    PGREPLICATION_NAMESPACE::pgoutput::Delete<Binary, false>> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(
+        const PGREPLICATION_NAMESPACE::pgoutput::Delete<Binary, false> &record,
+        FormatContext &ctx) const {
+        return std::format_to(
+            ctx.out(),
+            "Delete<Binary={},Streaming=false>(transactionId: "
+            "{}, oid: {}, oldDataOrPrimaryKey: {})",
+            Binary, record.transactionId, record.oid,
+            record.oldDataOrPrimaryKey);
+    }
+};
+
+template <>
+struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::Truncate<true>> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const PGREPLICATION_NAMESPACE::pgoutput::Truncate<true> &record,
+                FormatContext &ctx) const {
+        return std::format_to(ctx.out(),
+                              "Truncate<Streaming=true>(transactionId: "
+                              "{}, flags: {}, oids: {})",
+                              record.transactionId, record.flags, record.oids);
+    }
+};
+
+template <>
+struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::Truncate<false>> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(
+        const PGREPLICATION_NAMESPACE::pgoutput::Truncate<false> &record,
+        FormatContext &ctx) const {
+        return std::format_to(ctx.out(),
+                              "Truncate<Streaming=false>(flags: {}, oids: {})",
+                              record.flags, record.oids);
+    }
+};
+
+template <>
+struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::StreamStart> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const PGREPLICATION_NAMESPACE::pgoutput::StreamStart &record,
+                FormatContext &ctx) const {
+        return std::format_to(ctx.out(),
+                              "StreamStart(transactionId: {}, flags: {})",
+                              record.transactionId, record.flags);
+    }
+};
+
+template <>
+struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::StreamStop> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const PGREPLICATION_NAMESPACE::pgoutput::StreamStop &record,
+                FormatContext &ctx) const {
+        return std::format_to(ctx.out(), "StreamStop()");
+    }
+};
+
+template <>
+struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::StreamCommit> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const PGREPLICATION_NAMESPACE::pgoutput::StreamCommit &record,
+                FormatContext &ctx) const {
+        return std::format_to(ctx.out(),
+                              "StreamCommit(transactionId: {}, flags: {}, lsn: "
+                              "{}, endLsn: {}, timestamp: {})",
+                              record.transactionId, record.flags, record.lsn,
+                              record.endLsn, record.timestamp);
+    }
+};
+
+template <>
+struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::StreamAbort<true>> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(
+        const PGREPLICATION_NAMESPACE::pgoutput::StreamAbort<true> &record,
+        FormatContext &ctx) const {
+        return std::format_to(ctx.out(),
+                              "StreamAbort<IsParallel=true>(transactionId: {}, "
+                              "subTransactionId: {}, lsn: {}, timestamp: {})",
+                              record.transactionId, record.subTransactionId,
+                              record.lsn, record.timestamp);
+    }
+};
+
+template <>
+struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::StreamAbort<false>> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(
+        const PGREPLICATION_NAMESPACE::pgoutput::StreamAbort<false> &record,
+        FormatContext &ctx) const {
+        return std::format_to(ctx.out(),
+                              "StreamAbort<IsParallel=true>(transactionId: {}, "
+                              "subTransactionId: {})",
+                              record.transactionId, record.subTransactionId);
+    }
+};
+
+template <>
+struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::BeginPrepare> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const PGREPLICATION_NAMESPACE::pgoutput::BeginPrepare &record,
+                FormatContext &ctx) const {
+        return std::format_to(ctx.out(),
+                              "BeginPrepare(lsn: {}, endLsn: {}, timestamp: "
+                              "{}, transactionId: {}, gid: {})",
+                              record.lsn, record.endLsn, record.timestamp,
+                              record.transactionId, record.gid);
+    }
+};
+
+template <>
+struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::Prepare> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const PGREPLICATION_NAMESPACE::pgoutput::Prepare &record,
+                FormatContext &ctx) const {
+        return std::format_to(
+            ctx.out(),
+            "Prepare(flags: {}, lsn: {}, endLsn: {}, timestamp: "
+            "{}, transactionId: {}, gid: {})",
+            record.flags, record.lsn, record.endLsn, record.timestamp,
+            record.transactionId, record.gid);
+    }
+};
+
+template <>
+struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::CommitPrepared> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const PGREPLICATION_NAMESPACE::pgoutput::CommitPrepared &record,
+                FormatContext &ctx) const {
+        return std::format_to(
+            ctx.out(),
+            "CommitPrepared(flags: {}, lsn: {}, endLsn: {}, timestamp: "
+            "{}, transactionId: {}, gid: {})",
+            record.flags, record.lsn, record.endLsn, record.timestamp,
+            record.transactionId, record.gid);
+    }
+};
+
+template <>
+struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::RollbackPrepared> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(
+        const PGREPLICATION_NAMESPACE::pgoutput::RollbackPrepared &record,
+        FormatContext &ctx) const {
+        return std::format_to(ctx.out(),
+                              "RollbackPrepared(flags: {}, lsn: {}, endLsn: "
+                              "{}, prepareTimestamp: {}, rollbackTimestamp: "
+                              "{}, transactionId: {}, gid: {})",
+                              record.flags, record.lsn, record.endLsn,
+                              record.prepareTimestamp, record.rollbackTimestamp,
+                              record.transactionId, record.gid);
+    }
+};
+
+template <>
+struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::StreamPrepare> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const PGREPLICATION_NAMESPACE::pgoutput::StreamPrepare &record,
+                FormatContext &ctx) const {
+        return std::format_to(ctx.out(),
+                              "StreamPrepare(flags: {}, lsn: {}, endLsn: {}, "
+                              "timestamp: {}, transactionId: {}, gid: {})",
+                              record.flags, record.lsn, record.endLsn,
+                              record.timestamp, record.transactionId,
+                              record.gid);
+    }
+};
+
+#ifdef PGREPLICATION_ADD_STD_VARIANT_FORMATTER
+template <typename... Ts>
+struct std::formatter<std::variant<Ts...>> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const std::variant<Ts...> &record, FormatContext &ctx) const {
+        return std::visit(
+            [&ctx](auto &&arg) { return std::format_to(ctx.out(), "{}", arg); },
+            record);
+        return;
+    }
+};
+#endif
+};  // namespace std
