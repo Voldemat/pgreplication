@@ -11,6 +11,7 @@
 #include "pgreplication/pgoutput/events/base/insert.hpp"
 #include "pgreplication/pgoutput/events/base/relation.hpp"
 #include "pgreplication/pgoutput/events/base/truncate.hpp"
+#include "pgreplication/pgoutput/events/base/tuple_data.hpp"
 #include "pgreplication/pgoutput/events/base/type.hpp"
 #include "pgreplication/pgoutput/events/base/update.hpp"
 #include "pgreplication/pgoutput/events/message.hpp"
@@ -84,6 +85,11 @@ struct SessionContext {
             PGREPLICATION_NAMESPACE::pgoutput::events::RollbackPrepared;
         using StreamPrepare =
             PGREPLICATION_NAMESPACE::pgoutput::events::StreamPrepare;
+
+        using TupleData =
+            PGREPLICATION_NAMESPACE::pgoutput::events::TupleData<Binary>;
+        using TupleDataColumn =
+            PGREPLICATION_NAMESPACE::pgoutput::events::TupleDataColumn<Binary>;
     };
 };
 };  // namespace PGREPLICATION_NAMESPACE::pgoutput
