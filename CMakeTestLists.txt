@@ -12,4 +12,10 @@ target_link_libraries(
     PRIVATE GTest::gmock_main
     PRIVATE pgreplication_static
 )
+set_target_properties(main_test PROPERTIES
+    CXX_STANDARD 26
+    C_EXTENSIONS OFF
+    CXX_EXTENSIONS OFF
+    CXX_STANDARD_REQUIRED ON
+)
 gtest_discover_tests(main_test)
