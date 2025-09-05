@@ -9,7 +9,7 @@
 namespace PGREPLICATION_NAMESPACE::utils {
 std::int64_t int64FromNetwork(const type_span<std::int64_t> &buffer) {
     const auto &value = *(std::int64_t *)buffer.data();
-    if constexpr (std::endian::native == std::endian::little) {
+    if constexpr (std::endian::native == std::endian::big) {
         return value;
     };
     return std::byteswap(value);
@@ -17,7 +17,7 @@ std::int64_t int64FromNetwork(const type_span<std::int64_t> &buffer) {
 
 std::int32_t int32FromNetwork(const type_span<std::int32_t> &buffer) {
     const auto &value = *(std::int32_t *)buffer.data();
-    if constexpr (std::endian::native == std::endian::little) {
+    if constexpr (std::endian::native == std::endian::big) {
         return value;
     };
     return std::byteswap(value);
@@ -25,7 +25,7 @@ std::int32_t int32FromNetwork(const type_span<std::int32_t> &buffer) {
 
 std::int16_t int16FromNetwork(const type_span<std::int16_t> &buffer) {
     const auto &value = *(std::int16_t *)buffer.data();
-    if constexpr (std::endian::native == std::endian::little) {
+    if constexpr (std::endian::native == std::endian::big) {
         return value;
     };
     return std::byteswap(value);
@@ -44,7 +44,7 @@ bool boolFromNetwork(const char c) {
 };
 
 void int64ToNetwork(const type_span<std::int64_t> &buffer, std::int64_t n) {
-    if constexpr (std::endian::native == std::endian::little) {
+    if constexpr (std::endian::native == std::endian::big) {
         *(std::uint64_t *)buffer.data() = n;
     } else {
         *(std::uint64_t *)buffer.data() = std::byteswap(n);
@@ -52,7 +52,7 @@ void int64ToNetwork(const type_span<std::int64_t> &buffer, std::int64_t n) {
 };
 
 void int32ToNetwork(const type_span<std::int32_t> &buffer, std::int32_t n) {
-    if constexpr (std::endian::native == std::endian::little) {
+    if constexpr (std::endian::native == std::endian::big) {
         *(std::uint32_t *)buffer.data() = n;
     } else {
         *(std::uint32_t *)buffer.data() = std::byteswap(n);
