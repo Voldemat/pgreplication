@@ -28,8 +28,7 @@ std::vector<RelationColumn> parseRelationColumns(
 
 namespace std {
 template <>
-struct std::formatter<
-    PGREPLICATION_NAMESPACE::pgoutput::events::RelationColumn> {
+struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::RelationColumn> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
         return ctx.begin();
@@ -39,7 +38,7 @@ struct std::formatter<
     auto format(
         const PGREPLICATION_NAMESPACE::pgoutput::events::RelationColumn &record,
         FormatContext &ctx) const {
-        return std::format_to(
+        return format_to(
             ctx.out(),
             "RelationColumn(flags: {}, name: {}, oid: {}, typeModifier: {})",
             record.flags, record.name, record.oid, record.typeModifier);

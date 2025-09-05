@@ -105,7 +105,7 @@ parseStreamingEvent(const StreamingEventType &eventType,
 
 namespace std {
 template <>
-struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::StreamStart> {
+struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::StreamStart> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
         return ctx.begin();
@@ -115,14 +115,13 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::StreamStart> {
     auto format(
         const PGREPLICATION_NAMESPACE::pgoutput::events::StreamStart &record,
         FormatContext &ctx) const {
-        return std::format_to(ctx.out(),
-                              "StreamStart(transactionId: {}, flags: {})",
-                              record.transactionId, record.flags);
+        return format_to(ctx.out(), "StreamStart(transactionId: {}, flags: {})",
+                         record.transactionId, record.flags);
     }
 };
 
 template <>
-struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::StreamStop> {
+struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::StreamStop> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
         return ctx.begin();
@@ -132,12 +131,12 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::StreamStop> {
     auto format(
         const PGREPLICATION_NAMESPACE::pgoutput::events::StreamStop &record,
         FormatContext &ctx) const {
-        return std::format_to(ctx.out(), "StreamStop()");
+        return format_to(ctx.out(), "StreamStop()");
     }
 };
 
 template <>
-struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::StreamCommit> {
+struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::StreamCommit> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
         return ctx.begin();
@@ -147,16 +146,16 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::StreamCommit> {
     auto format(
         const PGREPLICATION_NAMESPACE::pgoutput::events::StreamCommit &record,
         FormatContext &ctx) const {
-        return std::format_to(ctx.out(),
-                              "StreamCommit(transactionId: {}, flags: {}, lsn: "
-                              "{}, endLsn: {}, timestamp: {})",
-                              record.transactionId, record.flags, record.lsn,
-                              record.endLsn, record.timestamp);
+        return format_to(ctx.out(),
+                         "StreamCommit(transactionId: {}, flags: {}, lsn: "
+                         "{}, endLsn: {}, timestamp: {})",
+                         record.transactionId, record.flags, record.lsn,
+                         record.endLsn, record.timestamp);
     }
 };
 
 template <>
-struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::StreamAbort<
+struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::StreamAbort<
     PGREPLICATION_NAMESPACE::pgoutput::StreamingValue::PARALLEL>> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
@@ -168,16 +167,16 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::StreamAbort<
                     PGREPLICATION_NAMESPACE::pgoutput::StreamingValue::PARALLEL>
                     &record,
                 FormatContext &ctx) const {
-        return std::format_to(ctx.out(),
-                              "StreamAbort(transactionId: {}, "
-                              "subTransactionId: {}, lsn: {}, timestamp: {})",
-                              record.transactionId, record.subTransactionId,
-                              record.lsn, record.timestamp);
+        return format_to(ctx.out(),
+                         "StreamAbort(transactionId: {}, "
+                         "subTransactionId: {}, lsn: {}, timestamp: {})",
+                         record.transactionId, record.subTransactionId,
+                         record.lsn, record.timestamp);
     }
 };
 
 template <>
-struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::StreamAbort<
+struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::StreamAbort<
     PGREPLICATION_NAMESPACE::pgoutput::StreamingValue::ON>> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
@@ -189,10 +188,10 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::StreamAbort<
         const PGREPLICATION_NAMESPACE::pgoutput::events::StreamAbort<
             PGREPLICATION_NAMESPACE::pgoutput::StreamingValue::ON> &record,
         FormatContext &ctx) const {
-        return std::format_to(ctx.out(),
-                              "StreamAbort(transactionId: {}, "
-                              "subTransactionId: {})",
-                              record.transactionId, record.subTransactionId);
+        return format_to(ctx.out(),
+                         "StreamAbort(transactionId: {}, "
+                         "subTransactionId: {})",
+                         record.transactionId, record.subTransactionId);
     }
 };
 };  // namespace std

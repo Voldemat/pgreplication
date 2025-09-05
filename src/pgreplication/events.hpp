@@ -118,7 +118,7 @@ std::vector<char> standbyEventToNetworkBuffer(const StandbyEvent &event);
 
 namespace std {
 template <>
-struct std::formatter<PGREPLICATION_NAMESPACE::PrimaryKeepaliveMessage> {
+struct formatter<PGREPLICATION_NAMESPACE::PrimaryKeepaliveMessage> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
         return ctx.begin();
@@ -137,7 +137,7 @@ struct std::formatter<PGREPLICATION_NAMESPACE::PrimaryKeepaliveMessage> {
 };
 
 template <>
-struct std::formatter<PGREPLICATION_NAMESPACE::XLogData> {
+struct formatter<PGREPLICATION_NAMESPACE::XLogData> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
         return ctx.begin();
@@ -156,7 +156,7 @@ struct std::formatter<PGREPLICATION_NAMESPACE::XLogData> {
 };
 
 template <>
-struct std::formatter<PGREPLICATION_NAMESPACE::StandbyStatusUpdate> {
+struct formatter<PGREPLICATION_NAMESPACE::StandbyStatusUpdate> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
         return ctx.begin();
@@ -177,7 +177,7 @@ struct std::formatter<PGREPLICATION_NAMESPACE::StandbyStatusUpdate> {
 };
 
 template <>
-struct std::formatter<PGREPLICATION_NAMESPACE::HotStandbyFeedbackMessage> {
+struct formatter<PGREPLICATION_NAMESPACE::HotStandbyFeedbackMessage> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
         return ctx.begin();

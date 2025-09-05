@@ -42,7 +42,7 @@ struct Truncate<StreamingEnabledValue::OFF> {
 
 namespace std {
 template <>
-struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Truncate<
+struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Truncate<
     PGREPLICATION_NAMESPACE::pgoutput::StreamingEnabledValue::ON>> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
@@ -55,7 +55,7 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Truncate<
             PGREPLICATION_NAMESPACE::pgoutput::StreamingEnabledValue::ON>
             &record,
         FormatContext &ctx) const {
-        return std::format_to(ctx.out(),
+        return format_to(ctx.out(),
                               "Truncate(transactionId: "
                               "{}, flags: {}, oids: {})",
                               record.transactionId, record.flags, record.oids);
@@ -63,7 +63,7 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Truncate<
 };
 
 template <>
-struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Truncate<
+struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Truncate<
     PGREPLICATION_NAMESPACE::pgoutput::StreamingEnabledValue::OFF>> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
@@ -76,8 +76,8 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Truncate<
             PGREPLICATION_NAMESPACE::pgoutput::StreamingEnabledValue::OFF>
             &record,
         FormatContext &ctx) const {
-        return std::format_to(ctx.out(), "Truncate(flags: {}, oids: {})",
-                              record.flags, record.oids);
+        return format_to(ctx.out(), "Truncate(flags: {}, oids: {})",
+                         record.flags, record.oids);
     }
 };
 };  // namespace std

@@ -1,5 +1,6 @@
 #include "./relation.hpp"
 
+#include <cstdint>
 #include <span>
 #include <string>
 
@@ -18,7 +19,8 @@ Relation<StreamingEnabledValue::ON>::fromBuffer(const input_buffer &buffer) {
     const auto &afterNamespaceIndex = 8 + 1 + relationNamespace.size();
     const auto &name = std::string(buffer.subspan(afterNamespaceIndex).data());
     const auto &afterNameIndex = afterNamespaceIndex + 1 + name.size();
-    const auto &replicaIdentity = buffer.subspan(afterNameIndex, 1).front();
+    const auto &replicaIdentity =
+        static_cast<std::int8_t>(buffer.subspan(afterNameIndex, 1).front());
     const auto &columnCount =
         int16FromNetwork(buffer.subspan(afterNameIndex + 1, 2).subspan<0, 2>());
     return { .transactionId = transactionId,
@@ -37,7 +39,8 @@ Relation<StreamingEnabledValue::OFF>::fromBuffer(const input_buffer &buffer) {
     const auto &afterNamespaceIndex = 4 + 1 + relationNamespace.size();
     const auto &name = std::string(buffer.subspan(afterNamespaceIndex).data());
     const auto &afterNameIndex = afterNamespaceIndex + 1 + name.size();
-    const auto &replicaIdentity = buffer.subspan(afterNameIndex, 1).front();
+    const auto &replicaIdentity =
+        static_cast<std::int8_t>(buffer.subspan(afterNameIndex, 1).front());
     const auto &columnCount =
         int16FromNetwork(buffer.subspan(afterNameIndex + 1, 2).subspan<0, 2>());
     return { .oid = oid,

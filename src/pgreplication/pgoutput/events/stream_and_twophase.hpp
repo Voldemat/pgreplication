@@ -29,8 +29,7 @@ struct StreamPrepare {
 
 namespace std {
 template <>
-struct std::formatter<
-    PGREPLICATION_NAMESPACE::pgoutput::events::StreamPrepare> {
+struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::StreamPrepare> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
         return ctx.begin();
@@ -40,12 +39,11 @@ struct std::formatter<
     auto format(
         const PGREPLICATION_NAMESPACE::pgoutput::events::StreamPrepare &record,
         FormatContext &ctx) const {
-        return std::format_to(ctx.out(),
-                              "StreamPrepare(flags: {}, lsn: {}, endLsn: {}, "
-                              "timestamp: {}, transactionId: {}, gid: {})",
-                              record.flags, record.lsn, record.endLsn,
-                              record.timestamp, record.transactionId,
-                              record.gid);
+        return format_to(ctx.out(),
+                         "StreamPrepare(flags: {}, lsn: {}, endLsn: {}, "
+                         "timestamp: {}, transactionId: {}, gid: {})",
+                         record.flags, record.lsn, record.endLsn,
+                         record.timestamp, record.transactionId, record.gid);
     }
 };
 };  // namespace std

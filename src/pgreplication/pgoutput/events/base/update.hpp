@@ -70,7 +70,7 @@ struct Update<Binary, StreamingEnabledValue::OFF> {
 
 namespace std {
 template <PGREPLICATION_NAMESPACE::pgoutput::BinaryValue Binary>
-struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Update<
+struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Update<
     Binary, PGREPLICATION_NAMESPACE::pgoutput::StreamingEnabledValue::ON>> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
@@ -84,16 +84,16 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Update<
             PGREPLICATION_NAMESPACE::pgoutput::StreamingEnabledValue::ON>
             &record,
         FormatContext &ctx) const {
-        return std::format_to(ctx.out(),
-                              "Update(transactionId: {}, oid: {}, "
-                              "oldDataOrPrimaryKey: {}, data: {})",
-                              record.transactionId, record.oid,
-                              record.oldDataOrPrimaryKey, record.data);
+        return format_to(ctx.out(),
+                         "Update(transactionId: {}, oid: {}, "
+                         "oldDataOrPrimaryKey: {}, data: {})",
+                         record.transactionId, record.oid,
+                         record.oldDataOrPrimaryKey, record.data);
     }
 };
 
 template <PGREPLICATION_NAMESPACE::pgoutput::BinaryValue Binary>
-struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Update<
+struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Update<
     Binary, PGREPLICATION_NAMESPACE::pgoutput::StreamingEnabledValue::OFF>> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
@@ -107,9 +107,9 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Update<
             PGREPLICATION_NAMESPACE::pgoutput::StreamingEnabledValue::OFF>
             &record,
         FormatContext &ctx) const {
-        return std::format_to(
-            ctx.out(), "Update(oid: {}, oldDataOrPrimaryKey: {}, data: {})",
-            record.oid, record.oldDataOrPrimaryKey, record.data);
+        return format_to(ctx.out(),
+                         "Update(oid: {}, oldDataOrPrimaryKey: {}, data: {})",
+                         record.oid, record.oldDataOrPrimaryKey, record.data);
     }
 };
 };  // namespace std

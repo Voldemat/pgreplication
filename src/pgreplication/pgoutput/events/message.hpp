@@ -52,7 +52,7 @@ struct Message<StreamingEnabledValue::OFF> {
 
 namespace std {
 template <>
-struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Message<
+struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Message<
     PGREPLICATION_NAMESPACE::pgoutput::StreamingEnabledValue::ON>> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
@@ -65,19 +65,19 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Message<
             PGREPLICATION_NAMESPACE::pgoutput::StreamingEnabledValue::ON>
             &record,
         FormatContext &ctx) const {
-        return std::format_to(
+        return format_to(
             ctx.out(),
             "Message(transactionId: {}, flags: {}, "
             "lsn: {}, prefix: {}, content: {})",
             record.transactionId, record.flags, record.lsn, record.prefix,
-            std::string_view(
+            string_view(
                 reinterpret_cast<const char *>(record.content.begin().base()),
                 reinterpret_cast<const char *>(record.content.end().base())));
     }
 };
 
 template <>
-struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Message<
+struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Message<
     PGREPLICATION_NAMESPACE::pgoutput::StreamingEnabledValue::OFF>> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
@@ -90,7 +90,7 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Message<
             PGREPLICATION_NAMESPACE::pgoutput::StreamingEnabledValue::OFF>
             &record,
         FormatContext &ctx) const {
-        return std::format_to(
+        return format_to(
             ctx.out(), "Message(flags: {}, lsn: {}, prefix: {}, content: {})",
             record.flags, record.lsn, record.prefix,
             std::string_view(

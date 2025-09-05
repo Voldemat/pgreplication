@@ -154,8 +154,7 @@ struct std::formatter<
 };
 
 template <>
-struct std::formatter<
-    PGREPLICATION_NAMESPACE::pgoutput::events::RollbackPrepared> {
+struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::RollbackPrepared> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
         return ctx.begin();
@@ -166,13 +165,13 @@ struct std::formatter<
         const PGREPLICATION_NAMESPACE::pgoutput::events::RollbackPrepared
             &record,
         FormatContext &ctx) const {
-        return std::format_to(ctx.out(),
-                              "RollbackPrepared(flags: {}, lsn: {}, endLsn: "
-                              "{}, prepareTimestamp: {}, rollbackTimestamp: "
-                              "{}, transactionId: {}, gid: {})",
-                              record.flags, record.lsn, record.endLsn,
-                              record.prepareTimestamp, record.rollbackTimestamp,
-                              record.transactionId, record.gid);
+        return format_to(ctx.out(),
+                         "RollbackPrepared(flags: {}, lsn: {}, endLsn: "
+                         "{}, prepareTimestamp: {}, rollbackTimestamp: "
+                         "{}, transactionId: {}, gid: {})",
+                         record.flags, record.lsn, record.endLsn,
+                         record.prepareTimestamp, record.rollbackTimestamp,
+                         record.transactionId, record.gid);
     }
 };
 };  // namespace std

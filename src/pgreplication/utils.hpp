@@ -66,14 +66,14 @@ using make_variant_t = typename tuple_to_variant<filter_void_t<Ts...>>::type;
 namespace std {
 #ifdef PGREPLICATION_ADD_STD_VARIANT_FORMATTER
 template <typename... Ts>
-struct std::formatter<std::variant<Ts...>> {
+struct formatter<variant<Ts...>> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
         return ctx.begin();
     }
 
     template <typename FormatContext>
-    auto format(const std::variant<Ts...> &record, FormatContext &ctx) const {
+    auto format(const variant<Ts...> &record, FormatContext &ctx) const {
         return std::visit(
             [&ctx](auto &&arg) { return std::format_to(ctx.out(), "{}", arg); },
             record);
@@ -82,7 +82,7 @@ struct std::formatter<std::variant<Ts...>> {
 #endif
 
 template <>
-struct std::formatter<std::vector<std::byte>> {
+struct formatter<vector<byte>> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
         return ctx.begin();

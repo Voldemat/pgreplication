@@ -44,7 +44,7 @@ struct Type<StreamingEnabledValue::OFF> {
 
 namespace std {
 template <>
-struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Type<
+struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Type<
     PGREPLICATION_NAMESPACE::pgoutput::StreamingEnabledValue::ON>> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
@@ -57,7 +57,7 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Type<
             PGREPLICATION_NAMESPACE::pgoutput::StreamingEnabledValue::ON>
             &record,
         FormatContext &ctx) const {
-        return std::format_to(
+        return format_to(
             ctx.out(),
             "Type(transactionId: {}, oid: {}, namespace: {}, name: {})",
             record.transactionId, record.oid, record.typeNamespace,
@@ -66,7 +66,7 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Type<
 };
 
 template <>
-struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Type<
+struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Type<
     PGREPLICATION_NAMESPACE::pgoutput::StreamingEnabledValue::OFF>> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
@@ -79,7 +79,7 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Type<
             PGREPLICATION_NAMESPACE::pgoutput::StreamingEnabledValue::OFF>
             &record,
         FormatContext &ctx) const {
-        return std::format_to(ctx.out(),
+        return format_to(ctx.out(),
                               "Type(oid: {}, namespace: {}, name: {})",
                               record.oid, record.typeNamespace, record.name);
     }

@@ -74,7 +74,7 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Relation<
 };
 
 template <>
-struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Relation<
+struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Relation<
     PGREPLICATION_NAMESPACE::pgoutput::StreamingEnabledValue::OFF>> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
@@ -87,11 +87,11 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Relation<
             PGREPLICATION_NAMESPACE::pgoutput::StreamingEnabledValue::OFF>
             &record,
         FormatContext &ctx) const {
-        return std::format_to(ctx.out(),
-                              "Relation(oid: {}, namespace: {}, name: {}, "
-                              "replicaIdentity: {}, columns: {})",
-                              record.oid, record.relationNamespace, record.name,
-                              record.replicaIdentity, record.columns);
+        return format_to(ctx.out(),
+                         "Relation(oid: {}, namespace: {}, name: {}, "
+                         "replicaIdentity: {}, columns: {})",
+                         record.oid, record.relationNamespace, record.name,
+                         record.replicaIdentity, record.columns);
     }
 };
 };  // namespace std

@@ -80,7 +80,7 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Insert<
 };
 
 template <PGREPLICATION_NAMESPACE::pgoutput::BinaryValue Binary>
-struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Insert<
+struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Insert<
     Binary, PGREPLICATION_NAMESPACE::pgoutput::StreamingEnabledValue::OFF>> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
@@ -94,7 +94,7 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Insert<
             PGREPLICATION_NAMESPACE::pgoutput::StreamingEnabledValue::OFF>
             &record,
         FormatContext &ctx) const {
-        return std::format_to(ctx.out(), "Insert(oid: {}, data: {})",
+        return format_to(ctx.out(), "Insert(oid: {}, data: {})",
                               record.oid, record.data);
     }
 };

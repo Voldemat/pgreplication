@@ -23,7 +23,7 @@ struct Commit {
 
 namespace std {
 template <>
-struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Commit> {
+struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Commit> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
         return ctx.begin();
@@ -32,7 +32,7 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Commit> {
     template <typename FormatContext>
     auto format(const PGREPLICATION_NAMESPACE::pgoutput::events::Commit &record,
                 FormatContext &ctx) const {
-        return std::format_to(
+        return format_to(
             ctx.out(), "Commit(flags: {}, lsn: {}, endLsn: {}, timestamp: {})",
             record.flags, record.lsn, record.endLsn, record.timestamp);
     }

@@ -23,7 +23,7 @@ struct Begin {
 
 namespace std {
 template <>
-struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Begin> {
+struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Begin> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
         return ctx.begin();
@@ -32,7 +32,7 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Begin> {
     template <typename FormatContext>
     auto format(const PGREPLICATION_NAMESPACE::pgoutput::events::Begin &record,
                 FormatContext &ctx) const {
-        return std::format_to(ctx.out(),
+        return format_to(ctx.out(),
                               "Begin(finalTransactionLsn: {}, commitTimestamp: "
                               "{}, transactionId: {})",
                               record.finalTransactionLsn,

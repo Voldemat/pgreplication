@@ -21,7 +21,7 @@ struct Origin {
 
 namespace std {
 template <>
-struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Origin> {
+struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Origin> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
         return ctx.begin();
@@ -30,7 +30,7 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Origin> {
     template <typename FormatContext>
     auto format(const PGREPLICATION_NAMESPACE::pgoutput::events::Origin &record,
                 FormatContext &ctx) const {
-        return std::format_to(ctx.out(), "Origin(commitLsn: {}, origin: {})",
+        return format_to(ctx.out(), "Origin(commitLsn: {}, origin: {})",
                               record.commitLsn, record.origin);
     }
 };

@@ -106,7 +106,7 @@ parseOldDataOrPrimaryKey(const std::span<char> &buffer) {
 
 namespace std {
 template <>
-struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::PGNull> {
+struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::PGNull> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
         return ctx.begin();
@@ -115,12 +115,12 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::PGNull> {
     template <typename FormatContext>
     auto format(const PGREPLICATION_NAMESPACE::pgoutput::events::PGNull &record,
                 FormatContext &ctx) const {
-        return std::format_to(ctx.out(), "NULL");
+        return format_to(ctx.out(), "NULL");
     }
 };
 
 template <>
-struct std::formatter<
+struct formatter<
     PGREPLICATION_NAMESPACE::pgoutput::events::PGUnchangedToastedValue> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
@@ -132,7 +132,7 @@ struct std::formatter<
         const PGREPLICATION_NAMESPACE::pgoutput::events::PGUnchangedToastedValue
             &record,
         FormatContext &ctx) const {
-        return std::format_to(ctx.out(), "PGUnchangedToastedValue");
+        return format_to(ctx.out(), "PGUnchangedToastedValue");
     }
 };
 };  // namespace std
