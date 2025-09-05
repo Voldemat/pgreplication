@@ -1,7 +1,6 @@
 #include "./utils.hpp"
 
 #include <arpa/inet.h>
-#include <sys/_endian.h>
 
 #include <cassert>
 #include <cstdint>

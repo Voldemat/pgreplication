@@ -94,7 +94,7 @@ parseTwoPhaseCommitEvent(const TwoPhaseCommitEventType &eventType,
 
 namespace std {
 template <>
-struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::BeginPrepare> {
+struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::BeginPrepare> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
         return ctx.begin();
@@ -104,16 +104,16 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::BeginPrepare> {
     auto format(
         const PGREPLICATION_NAMESPACE::pgoutput::events::BeginPrepare &record,
         FormatContext &ctx) const {
-        return std::format_to(ctx.out(),
-                              "BeginPrepare(lsn: {}, endLsn: {}, timestamp: "
-                              "{}, transactionId: {}, gid: {})",
-                              record.lsn, record.endLsn, record.timestamp,
-                              record.transactionId, record.gid);
+        return format_to(ctx.out(),
+                         "BeginPrepare(lsn: {}, endLsn: {}, timestamp: "
+                         "{}, transactionId: {}, gid: {})",
+                         record.lsn, record.endLsn, record.timestamp,
+                         record.transactionId, record.gid);
     }
 };
 
 template <>
-struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Prepare> {
+struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Prepare> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
         return ctx.begin();
@@ -123,18 +123,16 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Prepare> {
     auto format(
         const PGREPLICATION_NAMESPACE::pgoutput::events::Prepare &record,
         FormatContext &ctx) const {
-        return std::format_to(
-            ctx.out(),
-            "Prepare(flags: {}, lsn: {}, endLsn: {}, timestamp: "
-            "{}, transactionId: {}, gid: {})",
-            record.flags, record.lsn, record.endLsn, record.timestamp,
-            record.transactionId, record.gid);
+        return format_to(ctx.out(),
+                         "Prepare(flags: {}, lsn: {}, endLsn: {}, timestamp: "
+                         "{}, transactionId: {}, gid: {})",
+                         record.flags, record.lsn, record.endLsn,
+                         record.timestamp, record.transactionId, record.gid);
     }
 };
 
 template <>
-struct std::formatter<
-    PGREPLICATION_NAMESPACE::pgoutput::events::CommitPrepared> {
+struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::CommitPrepared> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
         return ctx.begin();
@@ -144,7 +142,7 @@ struct std::formatter<
     auto format(
         const PGREPLICATION_NAMESPACE::pgoutput::events::CommitPrepared &record,
         FormatContext &ctx) const {
-        return std::format_to(
+        return format_to(
             ctx.out(),
             "CommitPrepared(flags: {}, lsn: {}, endLsn: {}, timestamp: "
             "{}, transactionId: {}, gid: {})",

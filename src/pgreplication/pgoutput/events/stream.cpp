@@ -1,5 +1,6 @@
 #include "./stream.hpp"
 
+#include <cstdint>
 #include <optional>
 
 #include "pgreplication/pgoutput/options.hpp"
@@ -23,13 +24,13 @@ std::optional<StreamingEventType> parseStreamingEventType(const char &c) {
 StreamStart StreamStart::fromBuffer(const input_buffer &buffer) {
     return {
         .transactionId = int32FromNetwork(buffer.subspan<0, 4>()),
-        .flags = buffer.subspan<4, 1>().front(),
+        .flags = static_cast<std::int8_t>(buffer.subspan<4, 1>().front()),
     };
 };
 
 StreamCommit StreamCommit::fromBuffer(const input_buffer &buffer) {
     return { .transactionId = int32FromNetwork(buffer.subspan<0, 4>()),
-             .flags = buffer.subspan<4, 1>().front(),
+             .flags = static_cast<std::int8_t>(buffer.subspan<4, 1>().front()),
              .lsn = int64FromNetwork(buffer.subspan<5, 8>()),
              .endLsn = int64FromNetwork(buffer.subspan<13, 8>()),
              .timestamp = int64FromNetwork(buffer.subspan<21, 8>()) };
