@@ -1,7 +1,6 @@
 #include "./utils.hpp"
 
-#include <arpa/inet.h>
-
+#include <bit>
 #include <cassert>
 #include <cstdint>
 #include <format>
@@ -9,15 +8,27 @@
 
 namespace PGREPLICATION_NAMESPACE::utils {
 std::int64_t int64FromNetwork(const type_span<std::int64_t> &buffer) {
-    return ntohll(*(std::int64_t *)buffer.data());
+    const auto &value = *(std::int64_t *)buffer.data();
+    if constexpr (std::endian::native == std::endian::little) {
+        return value;
+    };
+    return std::byteswap(value);
 };
 
 std::int32_t int32FromNetwork(const type_span<std::int32_t> &buffer) {
-    return ntohl(*(std::int32_t *)buffer.data());
+    const auto &value = *(std::int32_t *)buffer.data();
+    if constexpr (std::endian::native == std::endian::little) {
+        return value;
+    };
+    return std::byteswap(value);
 };
 
 std::int16_t int16FromNetwork(const type_span<std::int16_t> &buffer) {
-    return ntohs(*(std::int16_t *)buffer.data());
+    const auto &value = *(std::int16_t *)buffer.data();
+    if constexpr (std::endian::native == std::endian::little) {
+        return value;
+    };
+    return std::byteswap(value);
 };
 
 bool boolFromNetwork(const char c) {
@@ -33,11 +44,19 @@ bool boolFromNetwork(const char c) {
 };
 
 void int64ToNetwork(const type_span<std::int64_t> &buffer, std::int64_t n) {
-    *(std::uint64_t *)buffer.data() = htonll(n);
+    if constexpr (std::endian::native == std::endian::little) {
+        *(std::uint64_t *)buffer.data() = n;
+    } else {
+        *(std::uint64_t *)buffer.data() = std::byteswap(n);
+    };
 };
 
 void int32ToNetwork(const type_span<std::int32_t> &buffer, std::int32_t n) {
-    *(std::uint32_t *)buffer.data() = htonl(n);
+    if constexpr (std::endian::native == std::endian::little) {
+        *(std::uint32_t *)buffer.data() = n;
+    } else {
+        *(std::uint32_t *)buffer.data() = std::byteswap(n);
+    };
 };
 
 void boolToNetwork(const type_span<bool> &buffer, bool value) {

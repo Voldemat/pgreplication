@@ -1,6 +1,5 @@
 #include "../events.hpp"
 
-#include <arpa/inet.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

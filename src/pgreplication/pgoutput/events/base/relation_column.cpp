@@ -13,7 +13,7 @@ namespace PGREPLICATION_NAMESPACE::pgoutput::events {
 RelationColumn RelationColumn::fromBuffer(const input_buffer &buffer) {
     const auto &name = std::string(buffer.subspan(1).data());
     return {
-        .flags = buffer.subspan<0, 1>().front(),
+        .flags = static_cast<std::int8_t>(buffer.subspan<0, 1>().front()),
         .name = name,
         .oid = int32FromNetwork(
             buffer.subspan(1 + 1 + name.size(), 4).subspan<0, 4>()),

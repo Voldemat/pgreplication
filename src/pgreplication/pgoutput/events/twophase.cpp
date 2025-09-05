@@ -1,5 +1,6 @@
 #include "./twophase.hpp"
 
+#include <cstdint>
 #include <expected>
 #include <optional>
 #include <span>
@@ -36,7 +37,7 @@ BeginPrepare BeginPrepare::fromBuffer(const input_buffer &buffer) {
 };
 
 Prepare Prepare::fromBuffer(const input_buffer &buffer) {
-    return { .flags = buffer.subspan<0, 1>().front(),
+    return { .flags = static_cast<std::int8_t>(buffer.subspan<0, 1>().front()),
              .lsn = int64FromNetwork(buffer.subspan<1, 8>()),
              .endLsn = int64FromNetwork(buffer.subspan<9, 8>()),
              .timestamp = int64FromNetwork(buffer.subspan<17, 8>()),
@@ -45,7 +46,7 @@ Prepare Prepare::fromBuffer(const input_buffer &buffer) {
 };
 
 CommitPrepared CommitPrepared::fromBuffer(const input_buffer &buffer) {
-    return { .flags = buffer.subspan<0, 1>().front(),
+    return { .flags = static_cast<std::int8_t>(buffer.subspan<0, 1>().front()),
              .lsn = int64FromNetwork(buffer.subspan<1, 8>()),
              .endLsn = int64FromNetwork(buffer.subspan<9, 8>()),
              .timestamp = int64FromNetwork(buffer.subspan<17, 8>()),
@@ -54,7 +55,7 @@ CommitPrepared CommitPrepared::fromBuffer(const input_buffer &buffer) {
 };
 
 RollbackPrepared RollbackPrepared::fromBuffer(const input_buffer &buffer) {
-    return { .flags = buffer.subspan<0, 1>().front(),
+    return { .flags = static_cast<std::int8_t>(buffer.subspan<0, 1>().front()),
              .lsn = int64FromNetwork(buffer.subspan<1, 8>()),
              .endLsn = int64FromNetwork(buffer.subspan<9, 8>()),
              .prepareTimestamp = int64FromNetwork(buffer.subspan<17, 8>()),

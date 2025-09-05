@@ -1,7 +1,5 @@
 #include "./events.hpp"
 
-#include <arpa/inet.h>
-
 #include <array>
 #include <cassert>
 #include <cstddef>
