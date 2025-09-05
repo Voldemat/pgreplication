@@ -51,7 +51,7 @@ struct Relation<StreamingEnabledValue::OFF> {
 
 namespace std {
 template <>
-struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Relation<
+struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Relation<
     PGREPLICATION_NAMESPACE::pgoutput::StreamingEnabledValue::ON>> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
@@ -64,7 +64,7 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Relation<
             PGREPLICATION_NAMESPACE::pgoutput::StreamingEnabledValue::ON>
             &record,
         FormatContext &ctx) const {
-        return std::format_to(ctx.out(),
+        return format_to(ctx.out(),
                               "Relation(transactionId: {}, oid: {}, namespace: "
                               "{}, name: {}, replicaIdentity: {}, columns: {})",
                               record.transactionId, record.oid,

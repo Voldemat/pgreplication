@@ -59,7 +59,7 @@ struct Insert<Binary, StreamingEnabledValue::OFF> {
 
 namespace std {
 template <PGREPLICATION_NAMESPACE::pgoutput::BinaryValue Binary>
-struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Insert<
+struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Insert<
     Binary, PGREPLICATION_NAMESPACE::pgoutput::StreamingEnabledValue::ON>> {
     template <typename ParseContext>
     constexpr auto parse(ParseContext &ctx) {
@@ -73,7 +73,7 @@ struct std::formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Insert<
             PGREPLICATION_NAMESPACE::pgoutput::StreamingEnabledValue::ON>
             &record,
         FormatContext &ctx) const {
-        return std::format_to(ctx.out(),
+        return format_to(ctx.out(),
                               "Insert(transactionId: {}, oid: {}, data: {})",
                               record.transactionId, record.oid, record.data);
     }
