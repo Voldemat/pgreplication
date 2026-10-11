@@ -89,12 +89,12 @@ struct formatter<vector<byte>> {
     template <typename FormatContext>
     auto format(const std::vector<std::byte> &record,
                 FormatContext &ctx) const {
-        return std::format_to(ctx.out(), "{}",
-                              std::span<unsigned char>(
-                                  const_cast<unsigned char *>(
-                                      reinterpret_cast<const unsigned char *>(
-                                          record.begin().base())),
-                                  record.size()));
+        return std::format_to(
+            ctx.out(), "{}",
+            std::span<unsigned char>(
+                const_cast<unsigned char *>(
+                    reinterpret_cast<const unsigned char *>(&*record.begin())),
+                record.size()));
     }
 };
 

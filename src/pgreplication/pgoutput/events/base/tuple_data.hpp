@@ -44,8 +44,8 @@ constexpr std::pair<TupleDataColumn<Binary>, unsigned int> parseTupleColumn(
     if constexpr (Binary == BinaryValue::ON) {
         assert(c == 'b');
         return { std::vector<std::byte>(
-                     reinterpret_cast<std::byte *>(valueBuffer.begin().base()),
-                     reinterpret_cast<std::byte *>(valueBuffer.end().base())),
+                     reinterpret_cast<std::byte *>(&*valueBuffer.begin()),
+                     reinterpret_cast<std::byte *>(&*valueBuffer.end())),
                  5 + valueSize };
     } else {
         assert(c == 't');

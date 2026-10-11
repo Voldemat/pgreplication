@@ -21,8 +21,8 @@ Message<StreamingEnabledValue::ON>::fromBuffer(const input_buffer &buffer) {
     const auto &contentBuffer =
         buffer.subspan(13 + 1 + prefix.size() + 4, contentLength);
     std::vector<std::byte> content(
-        reinterpret_cast<std::byte *>(contentBuffer.begin().base()),
-        reinterpret_cast<std::byte *>(contentBuffer.end().base()));
+        reinterpret_cast<std::byte *>(&*contentBuffer.begin()),
+        reinterpret_cast<std::byte *>(&*contentBuffer.end()));
     return {
         .transactionId = transactionId,
         .flags = flags,
@@ -43,8 +43,8 @@ Message<StreamingEnabledValue::OFF>::fromBuffer(const input_buffer &buffer) {
     const auto &contentBuffer =
         buffer.subspan(9 + 1 + prefix.size() + 4, contentLength);
     std::vector<std::byte> content(
-        reinterpret_cast<std::byte *>(contentBuffer.begin().base()),
-        reinterpret_cast<std::byte *>(contentBuffer.end().base()));
+        reinterpret_cast<std::byte *>(&*contentBuffer.begin()),
+        reinterpret_cast<std::byte *>(&*contentBuffer.end()));
     return {
         .flags = flags,
         .lsn = lsn,

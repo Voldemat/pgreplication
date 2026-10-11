@@ -36,7 +36,8 @@ struct EventStruct {
         Begin,
         std::conditional_t<Messages == MessagesValue::ON,
                            Message<StreamingEnabled>, void>,
-        Commit, std::conditional_t<OriginConf == OriginValue::ANY, Origin, void>,
+        Commit,
+        std::conditional_t<OriginConf == OriginValue::ANY, Origin, void>,
         Relation<StreamingEnabled>, Type<StreamingEnabled>,
         Insert<Binary, StreamingEnabled>, Update<Binary, StreamingEnabled>,
         Delete<Binary, StreamingEnabled>, Truncate<StreamingEnabled>,
@@ -181,12 +182,13 @@ std::expected<Event<Binary, Messages, Streaming, TwoPhase, OriginConf>,
               std::string>
 parseEvent(const std::span<char> &buffer) {
     assert(buffer.size() > 0);
+    const auto &typeChar = buffer[0];
     const auto &eventTypeOptional =
         parseEventType<Messages,
                        streamingValueToStreamingEnabledValue(Streaming),
-                       TwoPhase, OriginConf>(buffer[0]);
+                       TwoPhase, OriginConf>(typeChar);
     if (!eventTypeOptional.has_value()) {
-        return std::unexpected(std::format("Unexpected type: '{}'", buffer[0]));
+        return std::unexpected(std::format("Unexpected type: '{}'", typeChar));
     };
     const auto &eventType = eventTypeOptional.value();
     return parseEventByType<Binary, Messages, Streaming, TwoPhase, OriginConf>(

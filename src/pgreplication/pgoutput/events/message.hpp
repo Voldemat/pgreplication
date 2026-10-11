@@ -71,8 +71,8 @@ struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Message<
             "lsn: {}, prefix: {}, content: {})",
             record.transactionId, record.flags, record.lsn, record.prefix,
             string_view(
-                reinterpret_cast<const char *>(record.content.begin().base()),
-                reinterpret_cast<const char *>(record.content.end().base())));
+                reinterpret_cast<const char *>(&*record.content.begin()),
+                reinterpret_cast<const char *>(&*record.content.end())));
     }
 };
 
@@ -94,8 +94,8 @@ struct formatter<PGREPLICATION_NAMESPACE::pgoutput::events::Message<
             ctx.out(), "Message(flags: {}, lsn: {}, prefix: {}, content: {})",
             record.flags, record.lsn, record.prefix,
             std::string_view(
-                reinterpret_cast<const char *>(record.content.begin().base()),
-                reinterpret_cast<const char *>(record.content.end().base())));
+                reinterpret_cast<const char *>(&*record.content.begin()),
+                reinterpret_cast<const char *>(&*record.content.end())));
     }
 };
 };  // namespace std
